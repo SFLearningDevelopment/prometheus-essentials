@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
-<title>Module 2: Metrics & Data Model — Prometheus</title>
+<title>Module 1: Introduction & Architecture — Prometheus</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -223,6 +223,7 @@ code,pre,.mono{font-family:var(--font-mono);}
 </style>
 </head>
 <body>
+
 <div class="auth-overlay" id="auth-overlay">
   <div class="auth-card">
     <img src="https://sflearningdevelopment.github.io/sf-internal-kubernetes-certification/sourcefuse-logo.png" alt="SourceFuse"/>
@@ -234,12 +235,14 @@ code,pre,.mono{font-family:var(--font-mono);}
     </button>
   </div>
 </div>
+
 <div class="loading-overlay" id="loading-overlay"><div class="spinner"></div></div>
+
 <div id="app" style="display:none;">
 <header class="header">
   <div class="header-left">
     <img src="https://sflearningdevelopment.github.io/sf-internal-kubernetes-certification/sourcefuse-logo.png" alt="SourceFuse"/>
-    <a href="prometheus-dashboard.html">← Dashboard</a> / Module 2
+    <a href="prometheus-dashboard.html">← Dashboard</a> / Module 1
   </div>
   <div class="header-right">
     <div class="user-chip"><img id="user-avatar" src="" alt=""/><span id="user-name" style="font-size:0.82rem;"></span></div>
@@ -247,9 +250,10 @@ code,pre,.mono{font-family:var(--font-mono);}
     <button class="btn-sm" id="signout-btn">Sign Out</button>
   </div>
 </header>
+
 <div class="layout">
   <nav class="sidebar">
-    <div class="sidebar-title">Module 2 — 7 Sections</div>
+    <div class="sidebar-title">Module 1 — 7 Sections</div>
     <div class="sidebar-progress">
       <div style="font-size:0.78rem;color:var(--text2);display:flex;justify-content:space-between;"><span>Progress</span><span id="sidebar-pct">0%</span></div>
       <div class="sidebar-progress-bar"><div class="sidebar-progress-fill" id="sidebar-bar" style="width:0%"></div></div>
@@ -258,8 +262,8 @@ code,pre,.mono{font-family:var(--font-mono);}
   </nav>
   <div class="content">
     <div class="module-hero">
-      <h1>📊 Module 2: Metrics & Data Model</h1>
-      <p>Master Prometheus's four metric types, understand the time-series data model, labels, cardinality, and how metric exposition works.</p>
+      <h1>🔥 Module 1: Introduction & Architecture</h1>
+      <p>Understand what Prometheus is, why it exists, how its pull-based architecture works, and where it fits in the modern observability stack.</p>
       <div class="module-meta">
         <span class="meta-chip chip-weight">20% Exam Weight</span>
         <span class="meta-chip chip-sections">7 Sections</span>
@@ -267,12 +271,13 @@ code,pre,.mono{font-family:var(--font-mono);}
     </div>
     <div id="sections-container"></div>
     <div class="nav-footer">
-      <a href="prometheus-module-1.html" class="nav-btn">← Module 1: Introduction</a>
-      <a href="prometheus-module-3.html" class="nav-btn primary">Module 3: PromQL →</a>
+      <a href="prometheus-dashboard.html" class="nav-btn">← Dashboard</a>
+      <a href="prometheus-module-2.html" class="nav-btn primary">Module 2: Metrics & Data Model →</a>
     </div>
   </div>
 </div>
 </div>
+
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
@@ -288,239 +293,299 @@ const firebaseConfig = {
   messagingSenderId: "227322696511",
   appId: "1:227322696511:web:12e7ced7dd3d45fa06798a"
 };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
 
-const MODULE_KEY = 'pm2';
-const MODULE_NUM = 2;
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const MODULE_KEY = 'pm1';
+const MODULE_NUM = 1;
+
 const BADGES = { foundation:'Foundation', essential:'Essential', important:'Important' };
 const BADGE_CLASSES = { foundation:'badge-foundation', essential:'badge-essential', important:'badge-important' };
 
 const SECTIONS = [
-  {id:1, title:'The Time-Series Data Model', badge:'foundation', content:`
-    <h3>📐 What is a Time Series?</h3>
-    <p>Every metric in Prometheus is a <strong>time series</strong> — a stream of timestamped values identified by a unique combination of a <strong>metric name</strong> and a set of <strong>key-value labels</strong>.</p>
-    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button># Format: metric_name{label1="value1", label2="value2"} value timestamp
-http_requests_total{method="GET", status="200", job="api"} 1234 1620000000000</pre>
-    <p>Two time series with the same metric name but different label values are <strong>completely separate series</strong>. They share a name but nothing else.</p>
+  {id:1, title:'What is Prometheus?', badge:'foundation', content:`
+    <h3>🔥 Overview</h3>
+    <p>Prometheus is an open-source <strong>systems monitoring and alerting toolkit</strong> originally built at SoundCloud in 2012 and donated to the CNCF in 2016. It is now the de-facto standard for metrics monitoring in cloud-native environments.</p>
+    <p>At its core, Prometheus <strong>collects numeric time-series data</strong> — measurements with a timestamp and a set of labels — from your applications and infrastructure, stores them locally, and lets you query and alert on them.</p>
     <div class="analogy-box"><h4>🌍 Real-World Analogy</h4>
-      <div class="analogy-row"><strong>Metric name</strong><span>→</span><span>Product category (e.g. "temperature")</span></div>
-      <div class="analogy-row"><strong>Labels</strong><span>→</span><span>Product variant (city="Mumbai", unit="celsius")</span></div>
-      <div class="analogy-row"><strong>Time series</strong><span>→</span><span>One specific product SKU — uniquely identified</span></div>
-      <div class="analogy-row"><strong>Sample</strong><span>→</span><span>One reading at one moment in time</span></div>
+      <div class="analogy-row"><strong>Prometheus</strong><span>→</span><span>A doctor taking a patient's vitals every 15 seconds and recording them</span></div>
+      <div class="analogy-row"><strong>Metrics</strong><span>→</span><span>Blood pressure, heart rate, temperature readings</span></div>
+      <div class="analogy-row"><strong>Alert</strong><span>→</span><span>A nurse alarm when readings cross a danger threshold</span></div>
+      <div class="analogy-row"><strong>Grafana</strong><span>→</span><span>The chart on the hospital monitor showing trends over time</span></div>
     </div>
-    <h3>🏷️ Metric Naming Convention</h3>
+    <h3>🏗️ Key Characteristics</h3>
     <ul>
-      <li>Format: <code>namespace_subsystem_unit</code> e.g. <code>http_requests_total</code></li>
-      <li>Counters end in <code>_total</code></li>
-      <li>Histograms/summaries end in <code>_bucket</code>, <code>_sum</code>, <code>_count</code></li>
-      <li>Use snake_case, no hyphens</li>
+      <li><strong>Pull-based model:</strong> Prometheus scrapes metrics from targets — targets don't push to Prometheus</li>
+      <li><strong>Multi-dimensional data model:</strong> Metrics identified by name + key-value label pairs</li>
+      <li><strong>PromQL:</strong> A powerful built-in query language for slicing and aggregating data</li>
+      <li><strong>No external dependencies:</strong> Single binary, no distributed storage required</li>
+      <li><strong>Service discovery:</strong> Automatically discovers targets in Kubernetes, Consul, EC2 and more</li>
     </ul>
     <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
-      <p>In Grafana's Explore view or panel editor, when you type a metric name and then <code>{</code>, the autocomplete shows you all available label names and values. Each unique label combination is a separate time series, which is why cardinality matters — too many series = slow queries.</p>
+      <p>If you've used Grafana, you've almost certainly used Prometheus as its data source. Grafana does not store metrics — it visualises them. Prometheus is where the metrics actually live. Every PromQL query you write in a Grafana panel is executed against Prometheus.</p>
     </div>
     <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
       <ul>
-        <li>What two things uniquely identify a Prometheus time series?</li>
-        <li>What naming suffix do counter metrics use by convention?</li>
+        <li>Prometheus uses a __ model to collect metrics (push/pull)?</li>
+        <li>Which CNCF project introduced Prometheus?</li>
+        <li>What language does Prometheus use for queries?</li>
       </ul>
     </div>
   `},
-  {id:2, title:'Counter', badge:'essential', content:`
-    <h3>🔢 Counter — Always Goes Up</h3>
-    <p>A <strong>counter</strong> is a cumulative metric that only ever <strong>increases</strong> (or resets to zero on restart). Use it to track things that are counted over time: requests, errors, bytes sent.</p>
-    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button># HELP http_requests_total Total HTTP requests received
-# TYPE http_requests_total counter
-http_requests_total{method="GET",status="200"} 15234
-http_requests_total{method="POST",status="500"} 42</pre>
-    <h3>⚠️ Never Query a Counter Directly for Rate</h3>
-    <p>A counter value of 15234 by itself is not useful — it tells you the cumulative total since startup. What you want is the <strong>rate of change</strong> over time. Always use <code>rate()</code> or <code>irate()</code> in PromQL:</p>
-    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button"># Requests per second over last 5 minutes
-rate(http_requests_total[5m])
-
-# Error rate
-rate(http_requests_total{status=~"5.."}[5m])</pre>
-    <div class="callout callout-warn"><h4>⚠️ Counter Reset</h4>
-      <p>When a service restarts, its counter resets to 0. Prometheus's <code>rate()</code> function handles this automatically — it detects the reset and adjusts the calculation. This is why you should never use a plain counter value in a Grafana panel without wrapping it in <code>rate()</code> or <code>increase()</code>.</p>
+  {id:2, title:'Pull-Based Architecture', badge:'essential', content:`
+    <h3>⬇️ How the Pull Model Works</h3>
+    <p>Unlike traditional monitoring systems (Nagios, Graphite) that require applications to <strong>push</strong> data to a central server, Prometheus <strong>pulls</strong> metrics by making HTTP requests to <code>/metrics</code> endpoints exposed by your services.</p>
+    <div class="diagram">
+      <div class="diagram-title">Prometheus Pull Model</div>
+      <div class="diagram-row">
+        <div class="diagram-box blue">Your App<br/><small>/metrics</small></div>
+        <span style="font-size:1.2rem;color:var(--accent);">←</span>
+        <div class="diagram-box accent">Prometheus<br/><small>scrape every 15s</small></div>
+        <span style="font-size:1.2rem;color:var(--text2);">→</span>
+        <div class="diagram-box grafana">Grafana<br/><small>PromQL queries</small></div>
+      </div>
     </div>
-    <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
-      <p>In Grafana, when you see a "Request Rate" or "Error Rate" panel, it's almost always a counter wrapped in <code>rate()</code>. If a Grafana panel shows a counter's raw value and it suddenly drops to near zero, it's usually a pod restart — the counter reset, not an actual drop.</p>
-    </div>
-    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
-      <ul>
-        <li>Which PromQL function should you use with a counter to get a per-second rate?</li>
-        <li>What happens to a counter value when the application restarts?</li>
-        <li>A counter metric should end with which suffix?</li>
-      </ul>
-    </div>
-  `},
-  {id:3, title:'Gauge', badge:'essential', content:`
-    <h3>📈 Gauge — Can Go Up or Down</h3>
-    <p>A <strong>gauge</strong> represents a single numerical value that can <strong>arbitrarily increase or decrease</strong>. Use it for current state measurements: memory usage, queue size, active connections, temperature.</p>
-    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button># HELP node_memory_MemAvailable_bytes Available memory in bytes
-# TYPE node_memory_MemAvailable_bytes gauge
-node_memory_MemAvailable_bytes 4294967296
-
-# HELP up Whether the scrape was successful
-# TYPE up gauge
-up{job="api",instance="10.0.0.1:8080"} 1</pre>
-    <h3>✅ When to Use a Gauge</h3>
+    <h3>✅ Why Pull is Better for Cloud-Native</h3>
     <ul>
-      <li>Current CPU/memory usage</li>
-      <li>Number of active connections or goroutines</li>
-      <li>Queue depth or buffer size</li>
-      <li>Temperature, humidity, or any sensor reading</li>
-      <li>Disk space available</li>
+      <li><strong>Prometheus controls the rate:</strong> It decides how often to scrape — no risk of targets flooding it</li>
+      <li><strong>Easy health checking:</strong> If a target doesn't respond, Prometheus knows it's down</li>
+      <li><strong>Simple target configuration:</strong> Just expose a <code>/metrics</code> HTTP endpoint</li>
+      <li><strong>Firewall friendly:</strong> Only Prometheus needs outbound access to targets, not the reverse</li>
     </ul>
-    <div class="callout callout-tip"><h4>💡 The <code>up</code> Metric</h4>
-      <p>The most important gauge in Prometheus is the built-in <code>up</code> metric — automatically set to <code>1</code> if the last scrape succeeded, <code>0</code> if it failed. This is how you alert on targets being down: <code>up == 0</code>.</p>
+    <h3>🔄 The Scrape Cycle</h3>
+    <ol>
+      <li>Prometheus reads its <code>scrape_configs</code> (or service discovery) to get target list</li>
+      <li>At each <code>scrape_interval</code> (default 15s), it GETs <code>http://target:port/metrics</code></li>
+      <li>The response is parsed and stored as time-series data with a timestamp</li>
+      <li>The cycle repeats — building a history of measurements over time</li>
+    </ol>
+    <div class="callout callout-info"><h4>ℹ️ Pushgateway Exception</h4>
+      <p>For short-lived jobs (batch scripts, cron jobs) that finish before Prometheus can scrape them, Prometheus provides the <strong>Pushgateway</strong> — a metrics buffer that short-lived jobs can push to, and Prometheus then scrapes it. This is the exception, not the rule.</p>
     </div>
     <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
-      <p>In Grafana, gauges map naturally to Stat panels and Gauge visualization types. Unlike counters, gauge values can be used directly without wrapping in rate(). A memory usage panel showing <code>node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes</code> is a direct gauge arithmetic — no rate() needed.</p>
+      <p>When you set up a Prometheus data source in Grafana, you point it at Prometheus's HTTP API (default port 9090). Grafana then sends PromQL queries to this API. Grafana never talks directly to your application's <code>/metrics</code> endpoint — it always goes through Prometheus.</p>
     </div>
     <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
       <ul>
-        <li>Which metric type would you use for current number of active HTTP connections?</li>
-        <li>What does the built-in <code>up</code> metric indicate when it equals 0?</li>
-        <li>Can a gauge value decrease? Can a counter?</li>
+        <li>What HTTP endpoint does Prometheus scrape from targets?</li>
+        <li>What component handles metrics from short-lived batch jobs?</li>
+        <li>What is the default scrape interval in Prometheus?</li>
       </ul>
     </div>
   `},
-  {id:4, title:'Histogram', badge:'important', content:`
-    <h3>📊 Histogram — Distributions & Percentiles</h3>
-    <p>A <strong>histogram</strong> samples observations (e.g. request durations) and counts them in configurable <strong>buckets</strong>. It also exposes a total sum and count. Use it when you need percentile calculations (p50, p95, p99).</p>
-    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button># HELP http_request_duration_seconds HTTP request duration
-# TYPE http_request_duration_seconds histogram
-http_request_duration_seconds_bucket{le="0.1"}  2450
-http_request_duration_seconds_bucket{le="0.5"}  4200
-http_request_duration_seconds_bucket{le="1.0"}  4890
-http_request_duration_seconds_bucket{le="+Inf"} 5000
-http_request_duration_seconds_sum   1432.5
-http_request_duration_seconds_count 5000</pre>
-    <h3>📐 How Buckets Work</h3>
-    <p>Each bucket (<code>le</code> = "less than or equal") counts all observations that fell at or below that value. The buckets are cumulative. To calculate percentiles, use <code>histogram_quantile()</code>:</p>
-    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button"># 95th percentile request latency over last 5 minutes
-histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))</pre>
-    <div class="callout callout-warn"><h4>⚠️ Bucket Configuration Matters</h4>
-      <p>Histogram buckets must be configured at instrumentation time — you can't change them without redeploying your application. Buckets should be chosen to match your expected latency range. Poorly chosen buckets lead to inaccurate percentile calculations.</p>
+  {id:3, title:'Core Components', badge:'essential', content:`
+    <h3>🧩 The Prometheus Ecosystem</h3>
+    <p>Prometheus is not just a single binary — it is an ecosystem of components that work together. Understanding what each component does is critical for support engineering.</p>
+    <div class="diagram">
+      <div class="diagram-title">Prometheus Component Architecture</div>
+      <div class="diagram-row">
+        <div class="diagram-box blue">Exporters<br/><small>node, blackbox, etc.</small></div>
+        <div class="diagram-box blue">Your Apps<br/><small>instrumented code</small></div>
+        <div class="diagram-box blue">Pushgateway<br/><small>batch jobs</small></div>
+      </div>
+      <div class="diagram-row"><span style="color:var(--text2);font-size:1.2rem;">↓ scrape ↓</span></div>
+      <div class="diagram-row">
+        <div class="diagram-box accent">Prometheus Server<br/><small>scrape + store + evaluate</small></div>
+      </div>
+      <div class="diagram-row">
+        <div class="diagram-box green">Alertmanager<br/><small>route + deduplicate + notify</small></div>
+        <div class="diagram-box grafana">Grafana<br/><small>visualise via PromQL</small></div>
+      </div>
     </div>
-    <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
-      <p>In Grafana, the Heatmap visualization is designed specifically for histograms. The built-in "Request Latency" dashboards in kube-prometheus-stack use <code>histogram_quantile(0.99, ...)</code> for p99 latency panels. When a customer says "my p99 latency looks wrong in Grafana," check the bucket boundaries first.</p>
-    </div>
-    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
-      <ul>
-        <li>What PromQL function calculates percentiles from a histogram?</li>
-        <li>What does the <code>le</code> label on histogram buckets stand for?</li>
-        <li>A histogram with <code>le="+Inf"</code> equals which other histogram metric?</li>
-      </ul>
-    </div>
-  `},
-  {id:5, title:'Summary', badge:'essential', content:`
-    <h3>📋 Summary — Client-Side Percentiles</h3>
-    <p>A <strong>summary</strong> also samples observations but calculates configurable <strong>quantiles on the client side</strong> (inside your application) rather than relying on Prometheus to compute them. It exposes pre-computed quantiles, a sum, and a count.</p>
-    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button"># HELP rpc_duration_seconds RPC duration in seconds
-# TYPE rpc_duration_seconds summary
-rpc_duration_seconds{quantile="0.5"}  0.042
-rpc_duration_seconds{quantile="0.9"}  0.091
-rpc_duration_seconds{quantile="0.99"} 0.154
-rpc_duration_seconds_sum   8953.332
-rpc_duration_seconds_count 234567</pre>
-    <h3>⚖️ Histogram vs Summary</h3>
+    <h3>📦 Component Breakdown</h3>
     <ul>
-      <li><strong>Histogram:</strong> Buckets on server side. Percentiles computed by Prometheus via <code>histogram_quantile()</code>. Aggregatable across instances.</li>
-      <li><strong>Summary:</strong> Quantiles computed in the client. No re-aggregation across instances. More accurate but cannot be combined.</li>
-      <li><strong>Rule of thumb:</strong> Use <strong>histogram</strong> in most cases, especially in Kubernetes where you have multiple replicas and need to aggregate. Use summary only for single-instance services where accuracy matters more than aggregation.</li>
+      <li><strong>Prometheus Server:</strong> The core. Scrapes targets, stores TSDB data, evaluates rules, fires alerts to Alertmanager</li>
+      <li><strong>Exporters:</strong> Small agents that translate non-Prometheus metrics into the Prometheus format (e.g. node_exporter for OS metrics)</li>
+      <li><strong>Pushgateway:</strong> Intermediary for short-lived jobs that can't be scraped directly</li>
+      <li><strong>Alertmanager:</strong> Receives alerts from Prometheus, deduplicates, groups, and routes to receivers (Slack, PagerDuty, email)</li>
+      <li><strong>Client Libraries:</strong> Go, Java, Python, Ruby — instrument your own code to expose metrics</li>
     </ul>
-    <div class="callout callout-warn"><h4>⚠️ Cannot Aggregate Summaries</h4>
-      <p>You cannot <code>sum()</code> quantiles from summaries across instances — the math doesn't work. If you have 3 replicas each reporting p99=100ms, summing them gives 300ms which is meaningless. This is why histograms are preferred in distributed systems.</p>
+    <div class="callout callout-tip"><h4>💡 Support Engineer Tip</h4>
+      <p>Most support tickets involve one of three things: a missing exporter, a misconfigured scrape target, or an Alertmanager routing problem. Understanding component boundaries tells you immediately which component to look at first.</p>
+    </div>
+    <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
+      <p>In a full observability stack, Grafana sits alongside Prometheus — not above or below it. Grafana reads from Prometheus via its HTTP API. Alertmanager and Grafana Alerting are separate alert systems that can coexist; Grafana Alerting also supports Prometheus alerting rules via the Prometheus data source.</p>
     </div>
     <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
       <ul>
-        <li>Where are quantiles calculated in a summary — client or server?</li>
-        <li>Why can't you aggregate summary quantiles across multiple instances?</li>
-        <li>Which metric type should you prefer when running multiple replicas?</li>
+        <li>Which component deduplicates and routes alerts to receivers?</li>
+        <li>What is the purpose of the node_exporter?</li>
+        <li>Which component would you use for a cron job that runs for 30 seconds?</li>
       </ul>
     </div>
   `},
-  {id:6, title:'Labels & Cardinality', badge:'important', content:`
-    <h3>🏷️ Labels — The Power and the Risk</h3>
-    <p>Labels are key-value pairs that differentiate time series. They are Prometheus's primary mechanism for filtering, grouping, and aggregating data. But with great power comes great responsibility — <strong>cardinality</strong>.</p>
-    <h3>📈 What is Cardinality?</h3>
-    <p><strong>Cardinality</strong> is the total number of unique time series in Prometheus. It is the product of all unique label value combinations for a metric. High cardinality is the #1 cause of Prometheus performance problems.</p>
-    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button"># Low cardinality — 3 methods × 4 status codes = 12 series
-http_requests_total{method="GET|POST|PUT", status="200|400|404|500"}
+  {id:4, title:'Prometheus Server Internals', badge:'essential', content:`
+    <h3>🔬 Inside the Prometheus Server</h3>
+    <p>The Prometheus server is a single binary that handles several distinct responsibilities. Understanding its internal pipeline helps you diagnose where things go wrong.</p>
+    <h3>⚙️ Internal Pipeline</h3>
+    <ol>
+      <li><strong>Retrieval (Scraper):</strong> HTTP client that calls <code>/metrics</code> on each target at the configured interval</li>
+      <li><strong>TSDB (Storage):</strong> On-disk time-series database — stores data in 2-hour blocks, compacted over time. Default retention: 15 days</li>
+      <li><strong>Rule Evaluator:</strong> Evaluates recording rules and alerting rules on each evaluation interval (default 1m)</li>
+      <li><strong>HTTP API:</strong> REST API on port 9090 — used by Grafana, PromQL clients, and the Prometheus UI</li>
+      <li><strong>Service Discovery:</strong> Watches Kubernetes API, Consul, DNS, etc. to dynamically update the target list</li>
+    </ol>
+    <h3>📂 Key Configuration File</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button>global:
+  scrape_interval: 15s       # How often to scrape targets
+  evaluation_interval: 1m    # How often to evaluate rules
 
-# HIGH CARDINALITY — NEVER DO THIS
-# user_id has millions of unique values = millions of series
-http_requests_total{user_id="user-12345678"}</pre>
-    <div class="callout callout-warn"><h4>⚠️ High Cardinality Labels to Avoid</h4>
-      <ul>
-        <li>User IDs, session IDs, request IDs</li>
-        <li>Unbounded email addresses or usernames</li>
-        <li>Full URLs with query parameters</li>
-        <li>Timestamps as label values</li>
-      </ul>
-    </div>
-    <h3>🔧 Relabeling — Controlling Labels</h3>
-    <p>Prometheus's <code>relabel_configs</code> and <code>metric_relabel_configs</code> let you add, drop, replace, or filter labels during scraping — before they reach the TSDB.</p>
-    <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
-      <p>In Grafana, high cardinality metrics cause slow dashboard load times because Prometheus has to scan millions of series. If a dashboard takes 30+ seconds to load, check the PromQL queries for high-cardinality label selectors. The <code>label_values()</code> template variable function in Grafana can also trigger cardinality issues if pointed at an unbounded label.</p>
+scrape_configs:
+  - job_name: 'my-app'
+    static_configs:
+      - targets: ['localhost:8080']
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+rule_files:
+  - 'alerts/*.yml'</pre>
+    <div class="callout callout-warn"><h4>⚠️ Common Mistake</h4>
+      <p>Confusing <code>scrape_interval</code> with <code>evaluation_interval</code>. Scrape interval controls how often metrics are collected. Evaluation interval controls how often alerting rules are checked. They are independent settings.</p>
     </div>
     <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
       <ul>
-        <li>What is cardinality in Prometheus?</li>
-        <li>Which of these label values would cause a cardinality explosion: method, status_code, user_id?</li>
-        <li>What Prometheus config section drops or modifies labels before storage?</li>
+        <li>What is the default data retention period for Prometheus TSDB?</li>
+        <li>On which port does the Prometheus HTTP API listen by default?</li>
+        <li>What is the difference between scrape_interval and evaluation_interval?</li>
       </ul>
     </div>
   `},
-  {id:7, title:'Metric Exposition Format', badge:'essential', content:`
-    <h3>📄 The /metrics Endpoint</h3>
-    <p>Prometheus scrapes a plain-text HTTP endpoint — <code>/metrics</code> — that follows a specific exposition format. Understanding this format is critical for debugging scrape issues and writing exporters.</p>
-    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button"># HELP metric_name Description of the metric
-# TYPE metric_name counter|gauge|histogram|summary
-metric_name{label1="value1"} 42
-metric_name{label1="value2"} 17.5</pre>
-    <h3>🔍 Reading a Real /metrics Page</h3>
-    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button"># HELP go_goroutines Number of goroutines
-# TYPE go_goroutines gauge
-go_goroutines 8
-
-# HELP process_cpu_seconds_total Total user and system CPU time
-# TYPE process_cpu_seconds_total counter
-process_cpu_seconds_total 0.42
-
-# HELP http_request_duration_seconds Request duration histogram
-# TYPE http_request_duration_seconds histogram
-http_request_duration_seconds_bucket{le="0.05"} 120
-http_request_duration_seconds_bucket{le="0.5"}  450
-http_request_duration_seconds_bucket{le="+Inf"} 500
-http_request_duration_seconds_sum   48.2
-http_request_duration_seconds_count 500</pre>
-    <div class="callout callout-tip"><h4>💡 Debugging Scrape Issues</h4>
-      <ul>
-        <li>Browse to <code>http://target:port/metrics</code> directly in a browser — if it's blank or errors, the target is the problem</li>
-        <li>Check Prometheus UI → Status → Targets for scrape error messages</li>
-        <li>Use <code>curl http://target:port/metrics | head -50</code> to sample the output</li>
-      </ul>
+  {id:5, title:'Prometheus Operator & kube-prometheus-stack', badge:'important', content:`
+    <h3>☸️ Running Prometheus on Kubernetes</h3>
+    <p>In a Kubernetes environment, you don't configure Prometheus by editing config files manually. Instead, you use the <strong>Prometheus Operator</strong> — a Kubernetes controller that manages Prometheus instances using Custom Resource Definitions (CRDs).</p>
+    <h3>🛠️ The kube-prometheus-stack</h3>
+    <p>The <strong>kube-prometheus-stack</strong> Helm chart (formerly prometheus-operator) is the standard way to deploy the full monitoring stack on Kubernetes. It includes:</p>
+    <ul>
+      <li><strong>Prometheus Operator</strong> — manages CRDs and Prometheus lifecycle</li>
+      <li><strong>Prometheus</strong> — the TSDB and scraper</li>
+      <li><strong>Alertmanager</strong> — alert routing</li>
+      <li><strong>Grafana</strong> — pre-integrated dashboards</li>
+      <li><strong>kube-state-metrics</strong> — Kubernetes object metrics</li>
+      <li><strong>node-exporter</strong> — node-level OS metrics</li>
+    </ul>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button>helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install kube-prometheus-stack \\
+  --create-namespace \\
+  --namespace monitoring \\
+  prometheus-community/kube-prometheus-stack</pre>
+    <h3>📋 Key CRDs Introduced by the Operator</h3>
+    <ul>
+      <li><code>Prometheus</code> — declares a Prometheus instance (replicas, retention, storage)</li>
+      <li><code>Alertmanager</code> — declares an Alertmanager instance</li>
+      <li><code>ServiceMonitor</code> — tells Prometheus which Services to scrape</li>
+      <li><code>PodMonitor</code> — tells Prometheus which Pods to scrape directly</li>
+      <li><code>PrometheusRule</code> — defines alerting and recording rules</li>
+      <li><code>AlertmanagerConfig</code> — defines Alertmanager routing configuration</li>
+    </ul>
+    <div class="callout callout-info"><h4>ℹ️ Why CRDs Instead of Config Files?</h4>
+      <p>CRDs let you manage Prometheus configuration the same way you manage any Kubernetes resource — with <code>kubectl apply</code>, GitOps workflows, and RBAC. No SSH into Prometheus pods, no manual config file edits.</p>
     </div>
     <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
-      <p>When a customer says "I can't see metric X in Grafana," the first step is verifying it appears in the <code>/metrics</code> endpoint of the target. If it's not there, it's not instrumented. If it's there but not in Grafana, check if the target is being scraped by Prometheus (Status → Targets in the Prometheus UI).</p>
+      <p>The kube-prometheus-stack automatically configures Grafana with Prometheus as a data source and pre-loads dozens of dashboards for Kubernetes, nodes, pods, and namespaces. When you install the stack, you get a working Grafana+Prometheus setup out of the box.</p>
     </div>
     <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
       <ul>
-        <li>What are the two comment line types in the Prometheus exposition format?</li>
-        <li>What HTTP path does Prometheus scrape by default?</li>
-        <li>A metric appears in /metrics but not in Prometheus — what should you check?</li>
+        <li>Which CRD tells the Prometheus Operator which Kubernetes Services to scrape?</li>
+        <li>What Helm chart deploys the full Prometheus + Grafana + Alertmanager stack?</li>
+        <li>What is the purpose of the PrometheusRule CRD?</li>
+      </ul>
+    </div>
+  `},
+  {id:6, title:'Service Discovery', badge:'essential', content:`
+    <h3>🔍 Dynamic Target Discovery</h3>
+    <p>In a dynamic Kubernetes environment, pods come and go constantly. You can't maintain a static list of scrape targets — you need <strong>service discovery</strong> to automatically find and track targets.</p>
+    <h3>☸️ Kubernetes Service Discovery</h3>
+    <p>Prometheus has native Kubernetes service discovery via <code>kubernetes_sd_configs</code>. It can discover:</p>
+    <ul>
+      <li><strong>node</strong> — all cluster nodes</li>
+      <li><strong>pod</strong> — all pods matching a selector</li>
+      <li><strong>service</strong> — all services</li>
+      <li><strong>endpoints</strong> — all endpoint objects (most common for scraping apps)</li>
+      <li><strong>ingress</strong> — all ingress resources</li>
+    </ul>
+    <h3>🏷️ ServiceMonitor Pattern (Operator)</h3>
+    <p>When using the Prometheus Operator, you don't write <code>kubernetes_sd_configs</code> manually. Instead you create a <code>ServiceMonitor</code>:</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button>apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: my-app-monitor
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: my-app          # Must match your Service's labels
+  endpoints:
+    - port: metrics        # Port name from your Service
+      path: /metrics
+      interval: 30s</pre>
+    <div class="callout callout-warn"><h4>⚠️ Most Common ServiceMonitor Issue</h4>
+      <p>The <code>selector.matchLabels</code> must match the <strong>labels on the Service</strong>, not on the Pod. This is the #1 reason targets don't appear in Prometheus when using ServiceMonitors.</p>
+    </div>
+    <div class="callout callout-tip"><h4>💡 Debugging Tips</h4>
+      <ul>
+        <li>Check Prometheus UI → Status → Targets to see if your target is discovered</li>
+        <li>Check Prometheus UI → Status → Service Discovery to see what was found and why targets were dropped</li>
+        <li>Verify <code>namespaceSelector</code> — by default ServiceMonitors only watch their own namespace</li>
+      </ul>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>A ServiceMonitor is not discovering targets — what is the most likely cause?</li>
+        <li>Where in the Prometheus UI can you verify which targets are being scraped?</li>
+        <li>Which Kubernetes resource role discovers endpoint objects?</li>
+      </ul>
+    </div>
+  `},
+  {id:7, title:'Storage & Retention', badge:'essential', content:`
+    <h3>💾 Prometheus TSDB</h3>
+    <p>Prometheus uses its own embedded <strong>time-series database (TSDB)</strong> — not an external database. Data is written to disk in a specific on-disk format that is optimised for time-series reads and writes.</p>
+    <h3>📦 Block Structure</h3>
+    <ul>
+      <li>Data is written to an in-memory buffer first, then flushed to <strong>2-hour blocks</strong> on disk</li>
+      <li>Older blocks are periodically <strong>compacted</strong> into larger blocks for efficiency</li>
+      <li>Each block contains chunks (compressed sample data), an index, and metadata</li>
+      <li>Default retention: <strong>15 days</strong> (configurable with <code>--storage.tsdb.retention.time</code>)</li>
+    </ul>
+    <h3>⚙️ Storage Configuration</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button># Prometheus startup flags
+--storage.tsdb.path=/prometheus          # Data directory
+--storage.tsdb.retention.time=30d        # Keep 30 days of data
+--storage.tsdb.retention.size=50GB       # Or cap by disk size</pre>
+    <h3>🌐 Remote Storage</h3>
+    <p>For long-term storage beyond 15 days, Prometheus supports <strong>remote_write</strong> to external systems:</p>
+    <ul>
+      <li><strong>Thanos</strong> — object-store backed long-term storage + global querying</li>
+      <li><strong>Cortex / Mimir</strong> — horizontally scalable multi-tenant Prometheus</li>
+      <li><strong>VictoriaMetrics</strong> — high-performance remote storage</li>
+      <li><strong>Grafana Cloud</strong> — managed remote_write endpoint</li>
+    </ul>
+    <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
+      <p>If a customer asks "why can't I see data older than 15 days in Grafana?", the answer is almost always Prometheus retention settings — not Grafana. Grafana shows whatever Prometheus has. To extend history, configure <code>remote_write</code> to Thanos or Grafana Cloud, then add that as a second data source in Grafana.</p>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>What is the default data retention period for Prometheus?</li>
+        <li>What startup flag sets Prometheus retention to 30 days?</li>
+        <li>Which tool provides long-term multi-cluster Prometheus storage backed by object storage?</li>
       </ul>
     </div>
   `}
 ];
 
-let _uid = null, _completed = [];
-document.getElementById('signin-btn').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch(e) {} };
+let _uid = null;
+let _completed = [];
+
+document.getElementById('signin-btn').onclick = async () => {
+  try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch(e) {}
+};
 document.getElementById('signout-btn').onclick = () => signOut(auth);
+
 onAuthStateChanged(auth, async user => {
   if (user) {
     _uid = user.uid;
@@ -532,51 +597,108 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('loading-overlay').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     renderAll();
-  } else { _uid = null; document.getElementById('app').style.display = 'none'; document.getElementById('auth-overlay').style.display = 'flex'; }
+  } else {
+    _uid = null;
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('auth-overlay').style.display = 'flex';
+  }
 });
-async function loadCompleted() { const snap = await getDoc(doc(db,'progress',_uid)); _completed = snap.exists() ? (snap.data()[MODULE_KEY] || []) : []; }
+
+async function loadCompleted() {
+  const snap = await getDoc(doc(db,'progress',_uid));
+  _completed = snap.exists() ? (snap.data()[MODULE_KEY] || []) : [];
+}
+
 async function markComplete(id) {
   if (_completed.includes(id)) return;
   _completed = [..._completed, id];
   const ref = doc(db,'progress',_uid);
   const snap = await getDoc(ref);
-  if (!snap.exists()) { await setDoc(ref, {[MODULE_KEY]: _completed, updatedAt: serverTimestamp()}); }
-  else { await updateDoc(ref, {[MODULE_KEY]: arrayUnion(id), updatedAt: serverTimestamp()}); }
+  if (!snap.exists()) {
+    await setDoc(ref, {[MODULE_KEY]: _completed, updatedAt: serverTimestamp()});
+  } else {
+    await updateDoc(ref, {[MODULE_KEY]: arrayUnion(id), updatedAt: serverTimestamp()});
+  }
   const btn = document.getElementById(`complete-btn-${id}`);
   if (btn) { btn.textContent = '✅ Completed'; btn.classList.add('done'); btn.disabled = true; }
-  renderProgress(); renderNavItem(id, true); showSaveIndicator(id);
+  renderProgress();
+  renderNavItem(id, true);
+  showSaveIndicator(id);
 }
-function showSaveIndicator(id) { const ind = document.getElementById(`save-ind-${id}`); if (ind) { ind.classList.add('show'); setTimeout(()=>ind.classList.remove('show'),2000); } }
-function renderProgress() { const pct = Math.round((_completed.length / SECTIONS.length)*100); document.getElementById('sidebar-pct').textContent = pct+'%'; document.getElementById('sidebar-bar').style.width = pct+'%'; }
+
+function showSaveIndicator(id) {
+  const ind = document.getElementById(`save-ind-${id}`);
+  if (ind) { ind.classList.add('show'); setTimeout(()=>ind.classList.remove('show'),2000); }
+}
+
+function renderProgress() {
+  const pct = Math.round((_completed.length / SECTIONS.length)*100);
+  document.getElementById('sidebar-pct').textContent = pct+'%';
+  document.getElementById('sidebar-bar').style.width = pct+'%';
+}
+
 function renderNavItem(id, done) {
-  const el = document.getElementById(`nav-${id}`); if (!el) return;
+  const el = document.getElementById(`nav-${id}`);
+  if (!el) return;
   const sec = SECTIONS[id-1];
   el.className = 'nav-item' + (done ? ' completed' : '');
   el.innerHTML = `<span>${id}.</span><span style="flex:1;font-size:0.83rem">${sec.title}</span><span class="nav-badge ${BADGE_CLASSES[sec.badge]}">${BADGES[sec.badge]}</span>${done?'<span style="font-size:0.72rem">✅</span>':''}`;
   el.onclick = () => toggleSection(id);
 }
+
 function renderAll() {
-  const navContainer = document.getElementById('nav-items'); navContainer.innerHTML = '';
-  SECTIONS.forEach(s => { const div = document.createElement('div'); div.id = `nav-${s.id}`; navContainer.appendChild(div); renderNavItem(s.id, _completed.includes(s.id)); });
-  const secContainer = document.getElementById('sections-container'); secContainer.innerHTML = '';
+  const navContainer = document.getElementById('nav-items');
+  navContainer.innerHTML = '';
+  SECTIONS.forEach(s => {
+    const div = document.createElement('div');
+    div.id = `nav-${s.id}`;
+    navContainer.appendChild(div);
+    renderNavItem(s.id, _completed.includes(s.id));
+  });
+  const secContainer = document.getElementById('sections-container');
+  secContainer.innerHTML = '';
   SECTIONS.forEach(s => {
     const done = _completed.includes(s.id);
-    const div = document.createElement('div'); div.className = 'section-block';
-    div.innerHTML = `<div class="section-header" onclick="toggleSection(${s.id})"><span class="section-num">${MODULE_NUM}.${s.id}</span><span class="section-title">${s.title}</span><span class="nav-badge ${BADGE_CLASSES[s.badge]}">${BADGES[s.badge]}</span>${done?'<span style="color:var(--green);font-size:0.83rem;">✅</span>':''}<span class="section-toggle" id="toggle-${s.id}">▼</span></div><div class="section-body" id="body-${s.id}">${s.content}<button class="complete-btn ${done?'done':''}" id="complete-btn-${s.id}" onclick="markComplete(${s.id})" ${done?'disabled':''}>${done?'✅ Completed':'✅ Mark section '+MODULE_NUM+'.'+s.id+' as completed'}</button><span class="save-indicator" id="save-ind-${s.id}">✓ Saved to cloud</span></div>`;
+    const div = document.createElement('div');
+    div.className = 'section-block';
+    div.innerHTML = `
+      <div class="section-header" onclick="toggleSection(${s.id})">
+        <span class="section-num">${MODULE_NUM}.${s.id}</span>
+        <span class="section-title">${s.title}</span>
+        <span class="nav-badge ${BADGE_CLASSES[s.badge]}">${BADGES[s.badge]}</span>
+        ${done?'<span style="color:var(--green);font-size:0.83rem;">✅</span>':''}
+        <span class="section-toggle" id="toggle-${s.id}">▼</span>
+      </div>
+      <div class="section-body" id="body-${s.id}">
+        ${s.content}
+        <button class="complete-btn ${done?'done':''}" id="complete-btn-${s.id}" onclick="markComplete(${s.id})" ${done?'disabled':''}>
+          ${done?'✅ Completed':'✅ Mark section '+MODULE_NUM+'.'+s.id+' as completed'}
+        </button>
+        <span class="save-indicator" id="save-ind-${s.id}">✓ Saved to cloud</span>
+      </div>`;
     secContainer.appendChild(div);
   });
   renderProgress();
 }
+
 window.toggleSection = (id) => {
-  const body = document.getElementById(`body-${id}`); const toggle = document.getElementById(`toggle-${id}`);
+  const body = document.getElementById(`body-${id}`);
+  const toggle = document.getElementById(`toggle-${id}`);
   const isOpen = body.classList.contains('open');
   document.querySelectorAll('.section-body').forEach(b=>b.classList.remove('open'));
   document.querySelectorAll('.section-toggle').forEach(t=>t.classList.remove('open'));
   if (!isOpen) { body.classList.add('open'); toggle.classList.add('open'); }
 };
+
 window.markComplete = markComplete;
-window.toggleTheme = () => { const h = document.documentElement; h.setAttribute('data-theme', h.getAttribute('data-theme')==='dark'?'light':'dark'); };
-window.copyCode = (btn) => { const text = btn.parentElement.innerText.replace('Copy','').trim(); navigator.clipboard.writeText(text).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500);}); };
+window.toggleTheme = () => {
+  const h = document.documentElement;
+  h.setAttribute('data-theme', h.getAttribute('data-theme')==='dark'?'light':'dark');
+};
+window.copyCode = (btn) => {
+  const text = btn.parentElement.innerText.replace('Copy','').trim();
+  navigator.clipboard.writeText(text).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500);});
+};
 </script>
 </body>
 </html>
