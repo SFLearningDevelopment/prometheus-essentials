@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
+<title>[Reviewer] Module 1: Prometheus Module 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{--bg:#eef2f7;--bg2:#ffffff;--bg3:#f0f4f9;--border:#d0dae8;--text:#1a2332;--text-dim:#4a5568;--text-dimmer:#8fa3bc;--blue:#1a6eb5;--blue-light:#e8f1fb;--blue-mid:#b8d0ed;--green:#1a6b3a;--green-light:#e8f5ed;--coral:#c0392b;--coral-light:#fdf0ee;--radius:12px;}
+  html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Merriweather Sans',sans-serif;font-size:15px;line-height:1.6;}
+  a{color:var(--blue);text-decoration:none;}
+  .reviewer-topbanner{background:#f5f0ff;border-bottom:2px solid #c4bdf0;padding:9px 40px;font-size:12px;font-family:'Source Code Pro',monospace;color:#5b4fcf;display:flex;align-items:center;gap:8px;}
+  .sf-signin-overlay{position:fixed;inset:0;background:rgba(20,30,50,.82);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(3px);}
+  .sf-signin-overlay.hidden{display:none;}
+  .sf-signin-card{background:#fff;border-radius:16px;padding:36px 40px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;}
+  .sf-signin-logo{font-size:32px;margin-bottom:12px;}
+  .sf-signin-title{font-size:17px;font-weight:700;color:#1a2332;margin-bottom:8px;}
+  .sf-signin-sub{font-size:13px;color:#4a5568;line-height:1.6;margin-bottom:24px;}
+  .sf-google-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #d0dae8;border-radius:8px;padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;color:#1a2332;width:100%;justify-content:center;transition:box-shadow .15s;}
+  .sf-google-btn:hover{box-shadow:0 2px 8px rgba(0,0,0,.12);}
+  .sf-google-btn img{width:20px;height:20px;}
+  .sf-signin-divider{font-size:11px;color:#8fa3bc;text-align:center;margin:14px 0 10px;display:flex;align-items:center;gap:8px;font-family:'Source Code Pro',monospace;}
+  .sf-signin-divider::before,.sf-signin-divider::after{content:'';flex:1;height:1px;background:#d0dae8;}
+  .sf-fallback-input{width:100%;padding:10px 12px;border:1.5px solid #d0dae8;border-radius:8px;font-size:14px;font-family:'Merriweather Sans',sans-serif;color:#1a2332;margin-bottom:10px;outline:none;}
+  .sf-fallback-input:focus{border-color:var(--blue);}
+  .sf-fallback-btn{width:100%;padding:10px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;}
+  .sf-signin-error{margin-top:14px;font-size:12.5px;color:#c0392b;font-family:'Source Code Pro',monospace;background:#fdf0ee;border:1px solid #f0b8b2;border-radius:6px;padding:10px 12px;display:none;text-align:left;}
+  .sf-signin-error.visible{display:block;}
+  .sf-signed-in-bar{background:#e8f5ed;border-bottom:1px solid #a3d4b8;padding:7px 40px;font-size:11px;font-family:'Source Code Pro',monospace;color:var(--green);display:flex;align-items:center;justify-content:space-between;}
+  .sf-signed-in-bar.hidden{display:none;}
+  .sf-signout-btn{font-size:10px;color:var(--blue);background:none;border:1px solid #b8d0ed;border-radius:4px;padding:2px 8px;cursor:pointer;}
+  .topnav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 40px;height:48px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dimmer);font-family:'Source Code Pro',monospace;position:sticky;top:0;z-index:100;}
+  .topnav a{color:var(--blue);}
+  .sep{margin:0 4px;color:var(--text-dimmer);}
+  .main{max-width:860px;margin:0 auto;padding:36px 40px 80px;}
+  .module-hero{margin-bottom:28px;}
+  .hero-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:8px;font-family:'Source Code Pro',monospace;}
+  .module-hero h1{font-size:clamp(18px,2.5vw,26px);font-weight:700;color:var(--text);line-height:1.25;}
+  .section-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;}
+  .section-header{padding:14px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+  .section-header:hover{background:var(--bg3);}
+  .section-num{font-size:10px;font-weight:700;color:var(--text-dimmer);min-width:24px;font-family:'Source Code Pro',monospace;}
+  .section-title{font-weight:600;font-size:14px;flex:1;color:var(--text);}
+  .section-toggle{font-size:11px;color:var(--text-dimmer);transition:transform .2s;}
+  .section-toggle.open{transform:rotate(180deg);}
+  .section-body{display:none;padding:20px 22px 14px;border-top:1px solid var(--border);font-size:14px;color:var(--text-dim);line-height:1.75;}
+  .section-body.open{display:block;}
+  .section-body h3{font-size:15px;font-weight:700;color:var(--text);margin:16px 0 8px;}
+  .section-body p{margin-bottom:10px;}
+  .section-body ul,.section-body ol{margin:8px 0 12px 20px;}
+  .section-body li{margin-bottom:4px;}
+  .section-body code{font-family:'Source Code Pro',monospace;font-size:12.5px;background:var(--bg3);border:1px solid var(--border);padding:1px 5px;border-radius:4px;color:#0f4a7a;}
+  .section-body pre{background:#1e2433;color:#cdd6f4;padding:16px;border-radius:8px;font-size:12.5px;font-family:'Source Code Pro',monospace;overflow-x:auto;margin:12px 0;position:relative;}
+  .copy-btn,.copy-btn-small{position:absolute;top:8px;right:8px;background:#252b3b;border:1px solid #3a4155;color:#7a8ab0;border-radius:4px;padding:2px 8px;font-size:10px;cursor:pointer;font-family:'Source Code Pro',monospace;}
+  .copy-btn:hover,.copy-btn-small:hover{color:#cdd6f4;}
+  .reviewer-bar{background:#fff8e6;border:1px solid #f0d4a0;border-left:3px solid #92600a;border-radius:8px;padding:10px 16px;margin:18px 0 6px;display:flex;align-items:center;gap:10px;font-size:13px;color:#92600a;font-family:'Source Code Pro',monospace;}
+  .reviewer-bar input[type="checkbox"]{width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:var(--green);}
+  .reviewer-bar label{cursor:pointer;font-weight:600;user-select:none;}
+  .reviewer-bar.checked{background:var(--green-light);border-color:#a3d4b8;border-left-color:var(--green);color:var(--green);}
+  .reviewer-panel{background:#f5f0ff;border:1px solid #c4bdf0;border-top:3px solid #5b4fcf;border-radius:12px;padding:24px 28px;margin:32px 0;}
+  .reviewer-panel-label{font-size:9px;font-family:'Source Code Pro',monospace;letter-spacing:.18em;text-transform:uppercase;color:#5b4fcf;font-weight:600;margin-bottom:16px;}
+  .reviewer-q-text{font-size:14px;font-weight:600;color:#1a2332;line-height:1.65;margin-bottom:14px;}
+  .reviewer-options{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+  .reviewer-option{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1px solid #d0dae8;border-radius:8px;cursor:pointer;font-size:13.5px;color:#4a5568;line-height:1.5;background:#fff;transition:background .12s,border-color .12s;}
+  .reviewer-option:hover{background:#f0f4f9;border-color:#b8d0ed;}
+  .reviewer-option.selected{background:#e8f1fb;border-color:var(--blue);color:#1a2332;}
+  .reviewer-option.correct{background:var(--green-light);border-color:#a3d4b8;color:var(--green);}
+  .reviewer-option.wrong{background:var(--coral-light);border-color:#f0b8b2;color:var(--coral);}
+  .reviewer-option-key{font-family:'Source Code Pro',monospace;font-size:11px;font-weight:700;color:#8fa3bc;flex-shrink:0;margin-top:1px;}
+  .reviewer-reveal{font-size:12px;font-family:'Source Code Pro',monospace;color:#5b4fcf;cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;margin-bottom:14px;display:block;}
+  .reviewer-explanation{font-size:13px;color:#4a5568;line-height:1.7;padding:12px 14px;background:#eef2f7;border-radius:8px;margin-bottom:16px;display:none;}
+  .reviewer-explanation.visible{display:block;}
+  .reviewer-exp-label{font-size:9px;font-family:'Source Code Pro',monospace;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin-bottom:4px;}
+  .reviewer-exp-label.correct{color:var(--green);}
+  .reviewer-exp-label.wrong{color:var(--coral);}
+  .reviewer-comment-label{font-size:11px;font-family:'Source Code Pro',monospace;letter-spacing:.12em;text-transform:uppercase;color:#8fa3bc;font-weight:600;margin-bottom:6px;}
+  .reviewer-comment{width:100%;min-height:80px;padding:10px 12px;border:1px solid #c4bdf0;border-radius:8px;font-family:'Merriweather Sans',sans-serif;font-size:13.5px;color:#1a2332;background:#fff;resize:vertical;line-height:1.6;}
+  .reviewer-comment:focus{outline:none;border-color:#5b4fcf;}
+  .reviewer-save-note{font-size:11px;font-family:'Source Code Pro',monospace;color:#8fa3bc;margin-top:6px;}
+  .rev-complete-wrap{margin:28px 0 0;}
+  .rev-complete-bar{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:8px;font-size:13.5px;font-family:'Source Code Pro',monospace;font-weight:600;border:1.5px solid var(--border);background:var(--bg3);color:var(--text-dimmer);transition:all .2s;}
+  .rev-complete-bar.disabled{opacity:.6;cursor:not-allowed;}
+  .rev-complete-bar.ready{background:#fff8e6;border-color:#f0d4a0;border-left:3px solid #92600a;color:#92600a;cursor:pointer;}
+  .rev-complete-bar.done{background:var(--green-light);border-color:#a3d4b8;border-left:3px solid var(--green);color:var(--green);cursor:default;}
+  .rev-complete-bar input[type="checkbox"]{width:18px;height:18px;flex-shrink:0;accent-color:var(--green);}
+  .rev-complete-bar.disabled input{cursor:not-allowed;}
+  .rev-complete-hint{font-size:11px;font-family:'Source Code Pro',monospace;color:var(--text-dimmer);margin-top:6px;min-height:16px;}
+  .bottom-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0 0;border-top:1px solid var(--border);margin-top:40px;}
+  .nav-btn{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-family:'Source Code Pro',monospace;color:var(--blue);text-decoration:none;padding:10px 18px;border:1px solid var(--blue-mid);border-radius:8px;background:var(--blue-light);font-weight:600;}
+  .nav-btn.secondary{background:var(--bg2);color:var(--text-dim);border-color:var(--border);}
+  .nav-btn:hover{background:var(--blue-mid);}
+</style>
+<style>
+.section-questions{margin-top:16px;border-top:2px solid #e2e8f0;padding-top:16px;}
+.section-question-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:12px;}
+.section-question-item.answered-correct{border-color:#16a34a;background:#f0fdf4;}
+.section-question-item.answered-wrong{border-color:#dc2626;background:#fef2f2;}
+.sq-text{font-size:14px;font-weight:600;color:#0f172a;margin-bottom:10px;}
+.sq-options{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+.sq-option{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:13px;background:#fff;transition:all .15s;}
+.sq-option:hover{border-color:#2563eb;background:#eff6ff;}
+.sq-option.selected{border-color:#2563eb;background:#eff6ff;}
+.sq-option.correct{border-color:#16a34a;background:#f0fdf4;color:#16a34a;font-weight:600;}
+.sq-option.wrong{border-color:#dc2626;background:#fef2f2;color:#dc2626;}
+.sq-option-key{font-family:'Source Code Pro',monospace;font-size:11px;font-weight:700;color:#94a3b8;min-width:18px;}
+.sq-feedback{font-size:12px;font-weight:700;padding:4px 0;}
+.sq-feedback.correct{color:#16a34a;}
+.sq-feedback.wrong{color:#dc2626;}
+.sq-check-btn{background:#2563eb;color:#fff;border:none;border-radius:7px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;}
+.sq-check-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.section-complete-btn{display:flex;align-items:center;gap:8px;background:transparent;border:2px solid #e2e8f0;color:#94a3b8;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:not-allowed;margin-top:14px;transition:all .2s;}
+.section-complete-btn.unlocked{border-color:#16a34a;color:#16a34a;cursor:pointer;background:#f0fdf4;}
+.section-complete-btn.done{border-color:#16a34a;background:#16a34a;color:#fff;cursor:default;}
+.module-complete-wrap{background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:20px;margin-top:28px;text-align:center;}
+.module-complete-btn{background:#16a34a;color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;opacity:0.4;pointer-events:none;transition:all .2s;}
+.module-complete-btn.unlocked{opacity:1;pointer-events:auto;}
+.module-complete-hint{font-size:13px;color:#64748b;margin-top:8px;}
+.reviewer-comment-wrap{margin-top:20px;}
+.reviewer-comment-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px;}
+.reviewer-comment{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;resize:vertical;min-height:80px;outline:none;}
+.reviewer-comment:focus{border-color:#2563eb;}
+</style>
+</head>
+<body>
+<div class="sf-signin-overlay" id="sfSigninOverlay">
+  <div class="sf-signin-card">
+    <div class="sf-signin-logo">🔐</div>
+    <div class="sf-signin-title">Sign in to save your progress</div>
+    <div class="sf-signin-sub">Sign in with your SourceFuse Gmail. Review progress, checkboxes and question attempts are saved and restored across devices.</div>
+    <button class="sf-google-btn" id="sfGoogleSignInBtn"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Sign in with Google</button>
+    <div class="sf-signin-divider">or</div>
+    <input type="text" class="sf-fallback-input" id="sfEmailInput" placeholder="your.name@sourcefuse.com" autocomplete="off" inputmode="email">
+    <input type="password" class="sf-fallback-input" id="sfPasswordInput" placeholder="Password (test users only)" autocomplete="off" style="margin-top:6px;">
+    <button class="sf-fallback-btn" id="sfEmailSignInBtn">Continue with email</button>
+    <div class="sf-signin-error" id="sfSigninError"></div>
+  </div>
+</div>
+<div class="sf-signed-in-bar hidden" id="sfSignedInBar"><span id="sfSignedInEmail">Signed in as …</span><button class="sf-signout-btn" id="sfSignoutLink">Sign out</button></div>
+<div class="reviewer-topbanner"><span>👁</span><strong>Reviewer Mode</strong> — Module 1: Prometheus Module 1</div>
+<div class="main">
+  <div class="module-hero">
+    <div class="hero-eyebrow">Module 1 of 6 · Reviewer Mode</div>
+    <h1>Prometheus Module 1</h1>
+    <p style="color:#64748b;font-size:14px;margin-top:8px;">Review each section carefully and answer all questions correctly to mark sections complete. Once all sections are complete, submit your module review.</p>
+  </div>
+  <div id="sections-container"></div>
+  <div class="module-complete-wrap">
+    <div class="module-complete-hint" id="module-complete-hint">Complete all sections to unlock</div>
+    <div class="reviewer-comment-wrap">
+      <div class="reviewer-comment-label">Module Review Notes</div>
+      <textarea class="reviewer-comment" id="module-comment" placeholder="Add your overall notes for this module…"></textarea>
+    </div>
+    <button class="module-complete-btn" id="module-complete-btn" onclick="submitModuleComplete()">✓ Mark Module 1 as Reviewed</button>
+  </div>
+</div>
+<script>
+function sfShowError(msg){const el=document.getElementById('sfSigninError');if(el){el.textContent=msg;el.classList.add('visible');}}
+function sfHideOverlay(user){
+  window.sfReviewerEmail=user.email||user;window.sfReviewerUid=user.uid||'email_'+btoa(window.sfReviewerEmail).replace(/=/g,'');
+  const ov=document.getElementById('sfSigninOverlay');if(ov)ov.classList.add('hidden');
+  const bar=document.getElementById('sfSignedInBar');const lbl=document.getElementById('sfSignedInEmail');
+  if(bar)bar.classList.remove('hidden');if(lbl)lbl.textContent='Signed in as '+window.sfReviewerEmail;
+  if(typeof sfInitSession==='function')sfInitSession();
+  if(window._sfFirebaseReady&&typeof window.sfDb!=='undefined'&&typeof sfFetchAndMerge==='function')sfFetchAndMerge();
+}
+const SF_TEST_USERS={'ravjv2013@gmail.com':'SF-Test-2026!','noushin.khan7official@gmail.com':'SF-Test-2026!'};
+function sfSignInWithEmail(){const emailEl=document.getElementById('sfEmailInput');if(!emailEl)return;const email=emailEl.value.trim().toLowerCase();const pwdEl=document.getElementById('sfPasswordInput');const pwd=pwdEl?pwdEl.value:'';if(!email||!email.includes('@')){sfShowError('Please enter a valid email address.');return;}if(SF_TEST_USERS[email]){if(SF_TEST_USERS[email]!==pwd){sfShowError('Invalid test credentials.');return;}sfHideOverlay(email);return;}if(!email.endsWith('@sourcefuse.com')){sfShowError('Please use your @sourcefuse.com email address.');return;}sfHideOverlay(email);}
+async function sfSignInWithGoogle(){if(typeof firebase==='undefined'||!window._sfFirebaseReady){sfShowError('Popup blocked. Please enter your SF email below.');return;}const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({hd:'sourcefuse.com',prompt:'select_account'});const t=setTimeout(()=>sfShowError('Popup blocked. Please enter your SF email below.'),30000);try{const r=await firebase.auth().signInWithPopup(provider);clearTimeout(t);sfHideOverlay(r.user);}catch(e){clearTimeout(t);sfShowError('Popup blocked. Please enter your SF email below.');}}
+function sfSignOut(){window.sfReviewerEmail=null;window.sfReviewerUid=null;const bar=document.getElementById('sfSignedInBar');const ov=document.getElementById('sfSigninOverlay');if(bar)bar.classList.add('hidden');if(ov)ov.classList.remove('hidden');if(typeof firebase!=='undefined'&&window._sfFirebaseReady)firebase.auth().signOut();}
+document.addEventListener('DOMContentLoaded',function(){const gb=document.getElementById('sfGoogleSignInBtn');const eb=document.getElementById('sfEmailSignInBtn');const so=document.getElementById('sfSignoutLink');if(gb)gb.addEventListener('click',sfSignInWithGoogle);if(eb)eb.addEventListener('click',sfSignInWithEmail);if(so)so.addEventListener('click',sfSignOut);});
+</script>
+<script>
+const HUB_URL = 'https://sflearningdevelopment.github.io/sf-knowledge-hub/index.html';
+const SECTION_COUNT = 18676;
+const SECTION_QUESTIONS = {"1":[{"q":"Which CNCF project is Prometheus considered the de-facto standard for in cloud-native environments?","o":["Distributed tracing","Metrics monitoring and alerting","Container orchestration","Service mesh"],"c":1,"exp":"Prometheus is the de-facto standard for metrics monitoring and alerting in cloud-native environments, donated to the CNCF in 2016."},{"q":"Which model does Prometheus use to collect metrics from targets?","o":["Push","Pull","Stream","Event-driven"],"c":1,"exp":"Prometheus uses a pull-based model — it scrapes /metrics endpoints from targets at regular intervals."}],"2":[{"q":"What HTTP endpoint does Prometheus typically scrape from targets?","o":["/health","/metrics","/stats","/prom"],"c":1,"exp":"By convention, applications expose a /metrics HTTP endpoint that Prometheus scrapes."},{"q":"Which Prometheus component is the exception that handles short-lived batch jobs that finish before they can be scraped?","o":["Alertmanager","Pushgateway","node_exporter","Recording rules"],"c":1,"exp":"Pushgateway buffers metrics from short-lived jobs and lets Prometheus scrape them after the job has ended."}],"3":[{"q":"Which component receives alerts from Prometheus and routes them to receivers like Slack or PagerDuty?","o":["Pushgateway","Alertmanager","Recording rule engine","Grafana"],"c":1,"exp":"Alertmanager handles deduplication, grouping, silencing, and routing of alerts fired by Prometheus."},{"q":"What is the role of an exporter in the Prometheus ecosystem?","o":["It alerts on metric thresholds","It translates non-Prometheus metrics into the Prometheus format","It visualises dashboards","It stores long-term metrics"],"c":1,"exp":"Exporters are small agents that translate metrics from third-party systems (e.g. MySQL, node OS) into the Prometheus exposition format."}],"4":[{"q":"What is the main configuration file for a Prometheus server?","o":["prom.conf","prometheus.yml","config.json","scrape.toml"],"c":1,"exp":"prometheus.yml is the canonical YAML config file containing global, scrape_configs, alerting and rule_files settings."},{"q":"Which internal Prometheus subsystem evaluates recording and alerting rules at intervals?","o":["Scrape manager","Rule manager","Storage engine","Service discovery"],"c":1,"exp":"The rule manager evaluates rules at the configured evaluation_interval and writes results to the TSDB or fires alerts."}],"5":[{"q":"What does the Prometheus Operator's ServiceMonitor CRD do?","o":["Defines alert routing rules","Selects Kubernetes Services to be scraped by Prometheus","Configures Grafana dashboards","Manages TSDB block compaction"],"c":1,"exp":"ServiceMonitor selects Kubernetes Services (by labels) and tells Prometheus to scrape them — a declarative scrape config."},{"q":"Which Helm chart is the most popular way to install a full Prometheus stack on Kubernetes?","o":["prometheus-helm","kube-prometheus-stack","prom-stack","k8s-monitoring"],"c":1,"exp":"kube-prometheus-stack bundles Prometheus, Alertmanager, Grafana, kube-state-metrics, node_exporter and operator CRDs."}],"6":[{"q":"What is service discovery used for in Prometheus?","o":["Discovering which targets to scrape dynamically","Finding Grafana dashboards","Identifying long-running queries","Detecting alert storms"],"c":0,"exp":"Service discovery dynamically tells Prometheus what targets currently exist (via Kubernetes API, EC2, Consul, etc.)."},{"q":"Which built-in service discovery mechanism does Prometheus use to discover Kubernetes pods, services, and endpoints?","o":["consul_sd_config","kubernetes_sd_config","ec2_sd_config","static_configs"],"c":1,"exp":"kubernetes_sd_config queries the Kubernetes API to discover pods, services, endpoints, ingresses, and nodes for scraping."}],"7":[{"q":"What is the default local retention period for Prometheus TSDB data?","o":["1 day","15 days","30 days","90 days"],"c":1,"exp":"Prometheus retains TSDB data locally for 15 days by default, controllable via --storage.tsdb.retention.time."},{"q":"What does Prometheus use for long-term metric storage beyond local retention?","o":["S3 directly","Remote write to systems like Cortex, Thanos, or Mimir","Built-in long-term storage","Pushgateway"],"c":1,"exp":"Long-term storage uses remote_write to systems like Thanos, Cortex, Mimir, or Grafana Cloud."}]};
+
+function submitModuleComplete() {
+  const btn = document.getElementById('module-complete-btn');
+  if (!btn.classList.contains('unlocked')) return;
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  const comment = document.getElementById('module-comment')?.value || '';
+  const completedAt = new Date().toISOString();
+  if (typeof sfWrite === 'function') {
+    sfWrite({ completed: true, comment, completedAt, sectionCount: SECTION_COUNT });
+  }
+  setTimeout(() => { window.location.href = HUB_URL; }, 1200);
+}
+</script>
+<script>
+const REV_KEY='reviewer_'+window.location.pathname.replace(/[^a-z0-9]/gi,'_');
+const BADGES={foundation:'Foundation',essential:'Essential',important:'Important'};
+const SECTIONS=[
+  {id:1, title:'What is Prometheus?', badge:'foundation', content:`
+    <h3>🔥 Overview</h3>
+    <p>Prometheus is an open-source <strong>systems monitoring and alerting toolkit</strong> originally built at SoundCloud in 2012 and donated to the CNCF in 2016. It is now the de-facto standard for metrics monitoring in cloud-native environments.</p>
+    <p>At its core, Prometheus <strong>collects numeric time-series data</strong> — measurements with a timestamp and a set of labels — from your applications and infrastructure, stores them locally, and lets you query and alert on them.</p>
+    <div class="analogy-box"><h4>🌍 Real-World Analogy</h4>
+      <div class="analogy-row"><strong>Prometheus</strong><span>→</span><span>A doctor taking a patient's vitals every 15 seconds and recording them</span></div>
+      <div class="analogy-row"><strong>Metrics</strong><span>→</span><span>Blood pressure, heart rate, temperature readings</span></div>
+      <div class="analogy-row"><strong>Alert</strong><span>→</span><span>A nurse alarm when readings cross a danger threshold</span></div>
+      <div class="analogy-row"><strong>Grafana</strong><span>→</span><span>The chart on the hospital monitor showing trends over time</span></div>
+    </div>
+    <h3>🏗️ Key Characteristics</h3>
+    <ul>
+      <li><strong>Pull-based model:</strong> Prometheus scrapes metrics from targets — targets don't push to Prometheus</li>
+      <li><strong>Multi-dimensional data model:</strong> Metrics identified by name + key-value label pairs</li>
+      <li><strong>PromQL:</strong> A powerful built-in query language for slicing and aggregating data</li>
+      <li><strong>No external dependencies:</strong> Single binary, no distributed storage required</li>
+      <li><strong>Service discovery:</strong> Automatically discovers targets in Kubernetes, Consul, EC2 and more</li>
+    </ul>
+    <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
+      <p>If you've used Grafana, you've almost certainly used Prometheus as its data source. Grafana does not store metrics — it visualises them. Prometheus is where the metrics actually live. Every PromQL query you write in a Grafana panel is executed against Prometheus.</p>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>Prometheus uses a __ model to collect metrics (push/pull)?</li>
+        <li>Which CNCF project introduced Prometheus?</li>
+        <li>What language does Prometheus use for queries?</li>
+      </ul>
+    </div>
+  `},
+  {id:2, title:'Pull-Based Architecture', badge:'essential', content:`
+    <h3>⬇️ How the Pull Model Works</h3>
+    <p>Unlike traditional monitoring systems (Nagios, Graphite) that require applications to <strong>push</strong> data to a central server, Prometheus <strong>pulls</strong> metrics by making HTTP requests to <code>/metrics</code> endpoints exposed by your services.</p>
+    <div class="diagram">
+      <div class="diagram-title">Prometheus Pull Model</div>
+      <div class="diagram-row">
+        <div class="diagram-box blue">Your App<br/><small>/metrics</small></div>
+        <span style="font-size:1.2rem;color:var(--accent);">←</span>
+        <div class="diagram-box accent">Prometheus<br/><small>scrape every 15s</small></div>
+        <span style="font-size:1.2rem;color:var(--text2);">→</span>
+        <div class="diagram-box grafana">Grafana<br/><small>PromQL queries</small></div>
+      </div>
+    </div>
+    <h3>✅ Why Pull is Better for Cloud-Native</h3>
+    <ul>
+      <li><strong>Prometheus controls the rate:</strong> It decides how often to scrape — no risk of targets flooding it</li>
+      <li><strong>Easy health checking:</strong> If a target doesn't respond, Prometheus knows it's down</li>
+      <li><strong>Simple target configuration:</strong> Just expose a <code>/metrics</code> HTTP endpoint</li>
+      <li><strong>Firewall friendly:</strong> Only Prometheus needs outbound access to targets, not the reverse</li>
+    </ul>
+    <h3>🔄 The Scrape Cycle</h3>
+    <ol>
+      <li>Prometheus reads its <code>scrape_configs</code> (or service discovery) to get target list</li>
+      <li>At each <code>scrape_interval</code> (default 15s), it GETs <code>http://target:port/metrics</code></li>
+      <li>The response is parsed and stored as time-series data with a timestamp</li>
+      <li>The cycle repeats — building a history of measurements over time</li>
+    </ol>
+    <div class="callout callout-info"><h4>ℹ️ Pushgateway Exception</h4>
+      <p>For short-lived jobs (batch scripts, cron jobs) that finish before Prometheus can scrape them, Prometheus provides the <strong>Pushgateway</strong> — a metrics buffer that short-lived jobs can push to, and Prometheus then scrapes it. This is the exception, not the rule.</p>
+    </div>
+    <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
+      <p>When you set up a Prometheus data source in Grafana, you point it at Prometheus's HTTP API (default port 9090). Grafana then sends PromQL queries to this API. Grafana never talks directly to your application's <code>/metrics</code> endpoint — it always goes through Prometheus.</p>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>What HTTP endpoint does Prometheus scrape from targets?</li>
+        <li>What component handles metrics from short-lived batch jobs?</li>
+        <li>What is the default scrape interval in Prometheus?</li>
+      </ul>
+    </div>
+  `},
+  {id:3, title:'Core Components', badge:'essential', content:`
+    <h3>🧩 The Prometheus Ecosystem</h3>
+    <p>Prometheus is not just a single binary — it is an ecosystem of components that work together. Understanding what each component does is critical for support engineering.</p>
+    <div class="diagram">
+      <div class="diagram-title">Prometheus Component Architecture</div>
+      <div class="diagram-row">
+        <div class="diagram-box blue">Exporters<br/><small>node, blackbox, etc.</small></div>
+        <div class="diagram-box blue">Your Apps<br/><small>instrumented code</small></div>
+        <div class="diagram-box blue">Pushgateway<br/><small>batch jobs</small></div>
+      </div>
+      <div class="diagram-row"><span style="color:var(--text2);font-size:1.2rem;">↓ scrape ↓</span></div>
+      <div class="diagram-row">
+        <div class="diagram-box accent">Prometheus Server<br/><small>scrape + store + evaluate</small></div>
+      </div>
+      <div class="diagram-row">
+        <div class="diagram-box green">Alertmanager<br/><small>route + deduplicate + notify</small></div>
+        <div class="diagram-box grafana">Grafana<br/><small>visualise via PromQL</small></div>
+      </div>
+    </div>
+    <h3>📦 Component Breakdown</h3>
+    <ul>
+      <li><strong>Prometheus Server:</strong> The core. Scrapes targets, stores TSDB data, evaluates rules, fires alerts to Alertmanager</li>
+      <li><strong>Exporters:</strong> Small agents that translate non-Prometheus metrics into the Prometheus format (e.g. node_exporter for OS metrics)</li>
+      <li><strong>Pushgateway:</strong> Intermediary for short-lived jobs that can't be scraped directly</li>
+      <li><strong>Alertmanager:</strong> Receives alerts from Prometheus, deduplicates, groups, and routes to receivers (Slack, PagerDuty, email)</li>
+      <li><strong>Client Libraries:</strong> Go, Java, Python, Ruby — instrument your own code to expose metrics</li>
+    </ul>
+    <div class="callout callout-tip"><h4>💡 Support Engineer Tip</h4>
+      <p>Most support tickets involve one of three things: a missing exporter, a misconfigured scrape target, or an Alertmanager routing problem. Understanding component boundaries tells you immediately which component to look at first.</p>
+    </div>
+    <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
+      <p>In a full observability stack, Grafana sits alongside Prometheus — not above or below it. Grafana reads from Prometheus via its HTTP API. Alertmanager and Grafana Alerting are separate alert systems that can coexist; Grafana Alerting also supports Prometheus alerting rules via the Prometheus data source.</p>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>Which component deduplicates and routes alerts to receivers?</li>
+        <li>What is the purpose of the node_exporter?</li>
+        <li>Which component would you use for a cron job that runs for 30 seconds?</li>
+      </ul>
+    </div>
+  `},
+  {id:4, title:'Prometheus Server Internals', badge:'essential', content:`
+    <h3>🔬 Inside the Prometheus Server</h3>
+    <p>The Prometheus server is a single binary that handles several distinct responsibilities. Understanding its internal pipeline helps you diagnose where things go wrong.</p>
+    <h3>⚙️ Internal Pipeline</h3>
+    <ol>
+      <li><strong>Retrieval (Scraper):</strong> HTTP client that calls <code>/metrics</code> on each target at the configured interval</li>
+      <li><strong>TSDB (Storage):</strong> On-disk time-series database — stores data in 2-hour blocks, compacted over time. Default retention: 15 days</li>
+      <li><strong>Rule Evaluator:</strong> Evaluates recording rules and alerting rules on each evaluation interval (default 1m)</li>
+      <li><strong>HTTP API:</strong> REST API on port 9090 — used by Grafana, PromQL clients, and the Prometheus UI</li>
+      <li><strong>Service Discovery:</strong> Watches Kubernetes API, Consul, DNS, etc. to dynamically update the target list</li>
+    </ol>
+    <h3>📂 Key Configuration File</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button>global:
+  scrape_interval: 15s       # How often to scrape targets
+  evaluation_interval: 1m    # How often to evaluate rules
+
+scrape_configs:
+  - job_name: 'my-app'
+    static_configs:
+      - targets: ['localhost:8080']
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+rule_files:
+  - 'alerts/*.yml'</pre>
+    <div class="callout callout-warn"><h4>⚠️ Common Mistake</h4>
+      <p>Confusing <code>scrape_interval</code> with <code>evaluation_interval</code>. Scrape interval controls how often metrics are collected. Evaluation interval controls how often alerting rules are checked. They are independent settings.</p>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>What is the default data retention period for Prometheus TSDB?</li>
+        <li>On which port does the Prometheus HTTP API listen by default?</li>
+        <li>What is the difference between scrape_interval and evaluation_interval?</li>
+      </ul>
+    </div>
+  `},
+  {id:5, title:'Prometheus Operator & kube-prometheus-stack', badge:'important', content:`
+    <h3>☸️ Running Prometheus on Kubernetes</h3>
+    <p>In a Kubernetes environment, you don't configure Prometheus by editing config files manually. Instead, you use the <strong>Prometheus Operator</strong> — a Kubernetes controller that manages Prometheus instances using Custom Resource Definitions (CRDs).</p>
+    <h3>🛠️ The kube-prometheus-stack</h3>
+    <p>The <strong>kube-prometheus-stack</strong> Helm chart (formerly prometheus-operator) is the standard way to deploy the full monitoring stack on Kubernetes. It includes:</p>
+    <ul>
+      <li><strong>Prometheus Operator</strong> — manages CRDs and Prometheus lifecycle</li>
+      <li><strong>Prometheus</strong> — the TSDB and scraper</li>
+      <li><strong>Alertmanager</strong> — alert routing</li>
+      <li><strong>Grafana</strong> — pre-integrated dashboards</li>
+      <li><strong>kube-state-metrics</strong> — Kubernetes object metrics</li>
+      <li><strong>node-exporter</strong> — node-level OS metrics</li>
+    </ul>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button>helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install kube-prometheus-stack \\
+  --create-namespace \\
+  --namespace monitoring \\
+  prometheus-community/kube-prometheus-stack</pre>
+    <h3>📋 Key CRDs Introduced by the Operator</h3>
+    <ul>
+      <li><code>Prometheus</code> — declares a Prometheus instance (replicas, retention, storage)</li>
+      <li><code>Alertmanager</code> — declares an Alertmanager instance</li>
+      <li><code>ServiceMonitor</code> — tells Prometheus which Services to scrape</li>
+      <li><code>PodMonitor</code> — tells Prometheus which Pods to scrape directly</li>
+      <li><code>PrometheusRule</code> — defines alerting and recording rules</li>
+      <li><code>AlertmanagerConfig</code> — defines Alertmanager routing configuration</li>
+    </ul>
+    <div class="callout callout-info"><h4>ℹ️ Why CRDs Instead of Config Files?</h4>
+      <p>CRDs let you manage Prometheus configuration the same way you manage any Kubernetes resource — with <code>kubectl apply</code>, GitOps workflows, and RBAC. No SSH into Prometheus pods, no manual config file edits.</p>
+    </div>
+    <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
+      <p>The kube-prometheus-stack automatically configures Grafana with Prometheus as a data source and pre-loads dozens of dashboards for Kubernetes, nodes, pods, and namespaces. When you install the stack, you get a working Grafana+Prometheus setup out of the box.</p>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>Which CRD tells the Prometheus Operator which Kubernetes Services to scrape?</li>
+        <li>What Helm chart deploys the full Prometheus + Grafana + Alertmanager stack?</li>
+        <li>What is the purpose of the PrometheusRule CRD?</li>
+      </ul>
+    </div>
+  `},
+  {id:6, title:'Service Discovery', badge:'essential', content:`
+    <h3>🔍 Dynamic Target Discovery</h3>
+    <p>In a dynamic Kubernetes environment, pods come and go constantly. You can't maintain a static list of scrape targets — you need <strong>service discovery</strong> to automatically find and track targets.</p>
+    <h3>☸️ Kubernetes Service Discovery</h3>
+    <p>Prometheus has native Kubernetes service discovery via <code>kubernetes_sd_configs</code>. It can discover:</p>
+    <ul>
+      <li><strong>node</strong> — all cluster nodes</li>
+      <li><strong>pod</strong> — all pods matching a selector</li>
+      <li><strong>service</strong> — all services</li>
+      <li><strong>endpoints</strong> — all endpoint objects (most common for scraping apps)</li>
+      <li><strong>ingress</strong> — all ingress resources</li>
+    </ul>
+    <h3>🏷️ ServiceMonitor Pattern (Operator)</h3>
+    <p>When using the Prometheus Operator, you don't write <code>kubernetes_sd_configs</code> manually. Instead you create a <code>ServiceMonitor</code>:</p>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button>apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: my-app-monitor
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: my-app          # Must match your Service's labels
+  endpoints:
+    - port: metrics        # Port name from your Service
+      path: /metrics
+      interval: 30s</pre>
+    <div class="callout callout-warn"><h4>⚠️ Most Common ServiceMonitor Issue</h4>
+      <p>The <code>selector.matchLabels</code> must match the <strong>labels on the Service</strong>, not on the Pod. This is the #1 reason targets don't appear in Prometheus when using ServiceMonitors.</p>
+    </div>
+    <div class="callout callout-tip"><h4>💡 Debugging Tips</h4>
+      <ul>
+        <li>Check Prometheus UI → Status → Targets to see if your target is discovered</li>
+        <li>Check Prometheus UI → Status → Service Discovery to see what was found and why targets were dropped</li>
+        <li>Verify <code>namespaceSelector</code> — by default ServiceMonitors only watch their own namespace</li>
+      </ul>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>A ServiceMonitor is not discovering targets — what is the most likely cause?</li>
+        <li>Where in the Prometheus UI can you verify which targets are being scraped?</li>
+        <li>Which Kubernetes resource role discovers endpoint objects?</li>
+      </ul>
+    </div>
+  `},
+  {id:7, title:'Storage & Retention', badge:'essential', content:`
+    <h3>💾 Prometheus TSDB</h3>
+    <p>Prometheus uses its own embedded <strong>time-series database (TSDB)</strong> — not an external database. Data is written to disk in a specific on-disk format that is optimised for time-series reads and writes.</p>
+    <h3>📦 Block Structure</h3>
+    <ul>
+      <li>Data is written to an in-memory buffer first, then flushed to <strong>2-hour blocks</strong> on disk</li>
+      <li>Older blocks are periodically <strong>compacted</strong> into larger blocks for efficiency</li>
+      <li>Each block contains chunks (compressed sample data), an index, and metadata</li>
+      <li>Default retention: <strong>15 days</strong> (configurable with <code>--storage.tsdb.retention.time</code>)</li>
+    </ul>
+    <h3>⚙️ Storage Configuration</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button># Prometheus startup flags
+--storage.tsdb.path=/prometheus          # Data directory
+--storage.tsdb.retention.time=30d        # Keep 30 days of data
+--storage.tsdb.retention.size=50GB       # Or cap by disk size</pre>
+    <h3>🌐 Remote Storage</h3>
+    <p>For long-term storage beyond 15 days, Prometheus supports <strong>remote_write</strong> to external systems:</p>
+    <ul>
+      <li><strong>Thanos</strong> — object-store backed long-term storage + global querying</li>
+      <li><strong>Cortex / Mimir</strong> — horizontally scalable multi-tenant Prometheus</li>
+      <li><strong>VictoriaMetrics</strong> — high-performance remote storage</li>
+      <li><strong>Grafana Cloud</strong> — managed remote_write endpoint</li>
+    </ul>
+    <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
+      <p>If a customer asks "why can't I see data older than 15 days in Grafana?", the answer is almost always Prometheus retention settings — not Grafana. Grafana shows whatever Prometheus has. To extend history, configure <code>remote_write</code> to Thanos or Grafana Cloud, then add that as a second data source in Grafana.</p>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>What is the default data retention period for Prometheus?</li>
+        <li>What startup flag sets Prometheus retention to 30 days?</li>
+        <li>Which tool provides long-term multi-cluster Prometheus storage backed by object storage?</li>
+      </ul>
+    </div>
+  `}
+];
+const SQ=typeof SECTION_QUESTIONS!=='undefined'?SECTION_QUESTIONS:{};
+function revLoad(){try{return JSON.parse(localStorage.getItem(REV_KEY))||{};}catch(e){return {};}}
+function revSave(s){localStorage.setItem(REV_KEY,JSON.stringify(s));if(typeof sfWrite==='function')sfWrite(s);}
+
+function allSectionsComplete(){
+  return SECTIONS.every(s=>revLoad()['section_complete_'+s.id]===true);
+}
+
+function updateModuleCompleteBtn(){
+  const btn=document.getElementById('module-complete-btn');
+  const hint=document.getElementById('module-complete-hint');
+  if(!btn)return;
+  const state=revLoad();
+  if(state.completed){
+    btn.textContent='✓ Module Review Submitted';
+    btn.classList.add('unlocked');
+    btn.disabled=true;
+    if(hint)hint.textContent='Review submitted on '+new Date(state.completedAt).toLocaleString();
+    return;
+  }
+  const done=SECTIONS.filter(s=>state['section_complete_'+s.id]===true).length;
+  const total=SECTIONS.length;
+  if(done===total){
+    btn.classList.add('unlocked');
+    if(hint)hint.textContent='All '+total+' sections complete. You may now submit your module review.';
+  } else {
+    btn.classList.remove('unlocked');
+    if(hint)hint.textContent=done+' of '+total+' sections complete. Complete all sections to unlock.';
+  }
+}
+
+function buildQuestionBlock(secId,questions){
+  if(!questions||!questions.length)return '';
+  const keys=['A','B','C','D'];
+  const state=revLoad();
+  const secDone=state['section_complete_'+secId]===true;
+  let html='<div class="section-questions">';
+  questions.forEach((q,qi)=>{
+    const answered=state['sq_'+secId+'_'+qi+'_correct']===true;
+    html+='<div class="section-question-item'+(answered?' answered-correct':'')+'" id="sq-item-'+secId+'-'+qi+'">';
+    html+='<div class="sq-text">'+(qi+1)+'. '+q.q.replace(/</g,'&lt;')+'</div>';
+    html+='<div class="sq-options" id="sq-opts-'+secId+'-'+qi+'">';
+    q.o.forEach((opt,oi)=>{
+      html+='<div class="sq-option" data-sec="'+secId+'" data-q="'+qi+'" data-i="'+oi+'" onclick="sqSelect(this)"><span class="sq-option-key">'+keys[oi]+'</span><span>'+opt.replace(/</g,'&lt;')+'</span></div>';
+    });
+    html+='</div>';
+    html+='<div class="sq-feedback" id="sq-fb-'+secId+'-'+qi+'"></div>';
+    html+='<button class="sq-check-btn" id="sq-btn-'+secId+'-'+qi+'" onclick="sqCheck('+secId+','+qi+','+q.c+')" '+(answered?'disabled':'')+'>Check Answer</button>';
+    html+='</div>';
+  });
+  html+='</div>';
+  const allAnswered=questions.every((_,qi)=>revLoad()['sq_'+secId+'_'+qi+'_correct']===true);
+  html+='<button class="section-complete-btn'+(allAnswered||secDone?' unlocked':'')+' '+(secDone?'done':'')+'" id="sec-complete-btn-'+secId+'" onclick="sectionComplete('+secId+')" '+(secDone?'disabled':(allAnswered?'':'disabled'))+'>'+(secDone?'✓ Section Reviewed':'Mark Section as Reviewed')+'</button>';
+  return html;
+}
+
+window.sqSelect=function(el){
+  const secId=el.dataset.sec,qi=el.dataset.q;
+  document.querySelectorAll('[data-sec="'+secId+'"][data-q="'+qi+'"]').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+};
+
+window.sqCheck=function(secId,qi,correctIdx){
+  const selected=document.querySelector('[data-sec="'+secId+'"][data-q="'+qi+'"].selected');
+  if(!selected){alert('Please select an answer first.');return;}
+  const chosenIdx=parseInt(selected.dataset.i);
+  const isCorrect=(chosenIdx===correctIdx);
+  const fb=document.getElementById('sq-fb-'+secId+'-'+qi);
+  const btn=document.getElementById('sq-btn-'+secId+'-'+qi);
+  const item=document.getElementById('sq-item-'+secId+'-'+qi);
+  if(isCorrect){
+    selected.classList.add('correct');
+    if(fb){fb.textContent='✓ Correct!';fb.className='sq-feedback correct';}
+    if(btn)btn.disabled=true;
+    if(item)item.classList.add('answered-correct');
+    const st=revLoad();st['sq_'+secId+'_'+qi+'_correct']=true;revSave(st);
+    const secQs=SQ[secId]||[];
+    const allCorrect=secQs.every((_,i)=>revLoad()['sq_'+secId+'_'+i+'_correct']===true);
+    const secBtn=document.getElementById('sec-complete-btn-'+secId);
+    if(allCorrect&&secBtn){secBtn.classList.add('unlocked');secBtn.removeAttribute('disabled');}
+  } else {
+    selected.classList.add('wrong');
+    if(fb){fb.textContent='✗ Incorrect — please try again.';fb.className='sq-feedback wrong';}
+    setTimeout(()=>{
+      selected.classList.remove('wrong','selected');
+      if(fb){fb.textContent='';fb.className='sq-feedback';}
+    },1500);
+  }
+};
+
+window.sectionComplete=function(secId){
+  const btn=document.getElementById('sec-complete-btn-'+secId);
+  if(!btn||!btn.classList.contains('unlocked'))return;
+  btn.classList.add('done');btn.disabled=true;btn.textContent='✓ Section Reviewed';
+  const st=revLoad();st['section_complete_'+secId]=true;st['section_completed_at_'+secId]=new Date().toISOString();revSave(st);
+  updateModuleCompleteBtn();
+};
+
+window.toggleSection=(id)=>{const body=document.getElementById('body-'+id);const toggle=document.getElementById('toggle-'+id);const isOpen=body.classList.contains('open');document.querySelectorAll('.section-body').forEach(b=>b.classList.remove('open'));document.querySelectorAll('.section-toggle').forEach(t=>t.classList.remove('open'));if(!isOpen){body.classList.add('open');toggle.classList.add('open');}};
+window.copyCode=(btn)=>{const text=btn.parentElement.innerText.replace('Copy','').trim();navigator.clipboard.writeText(text).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500);});};
+
+function renderAll(){
+  const sec=document.getElementById('sections-container');if(!sec)return;sec.innerHTML='';
+  const s0=revLoad();
+  SECTIONS.forEach(s=>{
+    const secDone=s0['section_complete_'+s.id]===true;
+    const sd=document.createElement('div');sd.className='section-block';
+    const badgeTxt=BADGES[s.badge]||s.badge||'';
+    const questions=SQ[s.id]||[];
+    const qBlock=buildQuestionBlock(s.id,questions);
+    sd.innerHTML='<div class="section-header" onclick="toggleSection('+s.id+')"><span class="section-num">'+s.id+'.</span><span class="section-title">'+s.title+'</span>'+(badgeTxt?'<span style="font-size:10px;padding:2px 7px;border-radius:4px;font-weight:700;background:#e8f1fb;color:#1a6eb5;font-family:Source Code Pro,monospace;">'+badgeTxt+'</span>':'')+(secDone?'<span style="font-size:12px;margin-left:4px;">✅</span>':'')+'<span class="section-toggle" id="toggle-'+s.id+'">▼</span></div><div class="section-body" id="body-'+s.id+'">'+s.content+'</div>';
+    sec.appendChild(sd);
+    if(qBlock){const bodyEl=document.getElementById('body-'+s.id);if(bodyEl)bodyEl.insertAdjacentHTML('beforeend',qBlock);}
+  });
+  updateModuleCompleteBtn();
+}
+
+const moduleCommentEl=document.getElementById('module-comment');
+if(moduleCommentEl){
+  const s=revLoad();if(s.moduleComment)moduleCommentEl.value=s.moduleComment;
+  moduleCommentEl.addEventListener('input',()=>{const s=revLoad();s.moduleComment=moduleCommentEl.value;revSave(s);});
+}
+renderAll();
+</script>
+<script>
+(function(){var scripts=['https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js'];function loadNext(i){if(i>=scripts.length){window._sfFirebaseReady=true;initRevFirebase();return;}var s=document.createElement('script');s.src=scripts[i];s.onload=function(){loadNext(i+1);};s.onerror=function(){window._sfFirebaseReady=false;};document.head.appendChild(s);}loadNext(0);})();
+</script>
+<script>
+function initRevFirebase(){
+  const SF_CONFIG={apiKey:"AIzaSyA-8fatW5D7uR69rcuGFPH54IFqrz0PhU0",authDomain:"sfcertification-grafana.firebaseapp.com",projectId:"sfcertification-grafana",storageBucket:"sfcertification-grafana.firebasestorage.app",messagingSenderId:"227322696511",appId:"1:227322696511:web:12e7ced7dd3d45fa06798a"};
+  if(!firebase.apps.length)firebase.initializeApp(SF_CONFIG);
+  window.sfAuth=firebase.auth();window.sfDb=firebase.firestore();
+  const REV_KEY_FB='reviewer_prometheus-essentials_module-1';
+  const COURSE_ID='Hea541StRT71fQWSIOce';
+  function sfDocRef(){if(!window.sfReviewerUid)return null;return window.sfDb.collection('reviewerSessions').doc(window.sfReviewerUid).collection('prometheus-essentials').doc('module-1');}
+  function sfInitSession(){const local=revLoad();if(!local.startedAt){local.startedAt=new Date().toISOString();localStorage.setItem(REV_KEY,JSON.stringify(local));}if(!window._sfFirebaseReady||!window.sfReviewerUid)return;sfDocRef().set({email:window.sfReviewerEmail,moduleId:'module-1',courseId:COURSE_ID,startedAt:local.startedAt,lastUpdated:firebase.firestore.FieldValue.serverTimestamp(),reviewComplete:local.reviewComplete||false,attemptCount:local.attemptCount||0},{merge:true}).catch(e=>console.warn('SF init:',e.message));}
+  window.sfInitSession=sfInitSession;
+  window.sfWrite=function(extra){if(!window._sfFirebaseReady||!window.sfReviewerUid)return;const ref=sfDocRef();if(!ref)return;const local=revLoad();const payload=Object.assign({},local,extra,{email:window.sfReviewerEmail,moduleId:'module-1',courseId:COURSE_ID,lastUpdated:firebase.firestore.FieldValue.serverTimestamp()});ref.set(payload,{merge:true}).catch(e=>console.warn('SF write:',e.message));};
+  window.sfFetchAndMerge=async function(){const ref=sfDocRef();if(!ref)return;try{const snap=await ref.get();if(!snap.exists)return;const remote=snap.data();const local=revLoad();const merged=Object.assign({},local,remote);delete merged.email;delete merged.lastUpdated;localStorage.setItem(REV_KEY,JSON.stringify(merged));if(typeof renderAll==='function'){renderAll();}if(typeof updateCompleteBar==='function')updateCompleteBar();}catch(e){console.warn('SF fetch:',e.message);}};
+  function sfHideOverlayFB(user){window.sfReviewerEmail=user.email;window.sfReviewerUid=user.uid;const ov=document.getElementById('sfSigninOverlay');if(ov)ov.classList.add('hidden');const bar=document.getElementById('sfSignedInBar');const lbl=document.getElementById('sfSignedInEmail');if(bar)bar.classList.remove('hidden');if(lbl)lbl.textContent='Signed in as '+user.email;sfInitSession();window.sfFetchAndMerge();}
+  window.sfAuth.onAuthStateChanged(user=>{if(user){sfHideOverlayFB(user);}else{document.getElementById('sfSigninOverlay').classList.remove('hidden');}});
+}
+</script>
+</body>
+</html>
