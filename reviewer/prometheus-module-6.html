@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
+<title>[Reviewer] Module 6: Prometheus Module 6</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{--bg:#eef2f7;--bg2:#ffffff;--bg3:#f0f4f9;--border:#d0dae8;--text:#1a2332;--text-dim:#4a5568;--text-dimmer:#8fa3bc;--blue:#1a6eb5;--blue-light:#e8f1fb;--blue-mid:#b8d0ed;--green:#1a6b3a;--green-light:#e8f5ed;--coral:#c0392b;--coral-light:#fdf0ee;--radius:12px;}
+  html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Merriweather Sans',sans-serif;font-size:15px;line-height:1.6;}
+  a{color:var(--blue);text-decoration:none;}
+  .reviewer-topbanner{background:#f5f0ff;border-bottom:2px solid #c4bdf0;padding:9px 40px;font-size:12px;font-family:'Source Code Pro',monospace;color:#5b4fcf;display:flex;align-items:center;gap:8px;}
+  .sf-signin-overlay{position:fixed;inset:0;background:rgba(20,30,50,.82);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(3px);}
+  .sf-signin-overlay.hidden{display:none;}
+  .sf-signin-card{background:#fff;border-radius:16px;padding:36px 40px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;}
+  .sf-signin-logo{font-size:32px;margin-bottom:12px;}
+  .sf-signin-title{font-size:17px;font-weight:700;color:#1a2332;margin-bottom:8px;}
+  .sf-signin-sub{font-size:13px;color:#4a5568;line-height:1.6;margin-bottom:24px;}
+  .sf-google-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #d0dae8;border-radius:8px;padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;color:#1a2332;width:100%;justify-content:center;transition:box-shadow .15s;}
+  .sf-google-btn:hover{box-shadow:0 2px 8px rgba(0,0,0,.12);}
+  .sf-google-btn img{width:20px;height:20px;}
+  .sf-signin-divider{font-size:11px;color:#8fa3bc;text-align:center;margin:14px 0 10px;display:flex;align-items:center;gap:8px;font-family:'Source Code Pro',monospace;}
+  .sf-signin-divider::before,.sf-signin-divider::after{content:'';flex:1;height:1px;background:#d0dae8;}
+  .sf-fallback-input{width:100%;padding:10px 12px;border:1.5px solid #d0dae8;border-radius:8px;font-size:14px;font-family:'Merriweather Sans',sans-serif;color:#1a2332;margin-bottom:10px;outline:none;}
+  .sf-fallback-input:focus{border-color:var(--blue);}
+  .sf-fallback-btn{width:100%;padding:10px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;}
+  .sf-signin-error{margin-top:14px;font-size:12.5px;color:#c0392b;font-family:'Source Code Pro',monospace;background:#fdf0ee;border:1px solid #f0b8b2;border-radius:6px;padding:10px 12px;display:none;text-align:left;}
+  .sf-signin-error.visible{display:block;}
+  .sf-signed-in-bar{background:#e8f5ed;border-bottom:1px solid #a3d4b8;padding:7px 40px;font-size:11px;font-family:'Source Code Pro',monospace;color:var(--green);display:flex;align-items:center;justify-content:space-between;}
+  .sf-signed-in-bar.hidden{display:none;}
+  .sf-signout-btn{font-size:10px;color:var(--blue);background:none;border:1px solid #b8d0ed;border-radius:4px;padding:2px 8px;cursor:pointer;}
+  .topnav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 40px;height:48px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dimmer);font-family:'Source Code Pro',monospace;position:sticky;top:0;z-index:100;}
+  .topnav a{color:var(--blue);}
+  .sep{margin:0 4px;color:var(--text-dimmer);}
+  .main{max-width:860px;margin:0 auto;padding:36px 40px 80px;}
+  .module-hero{margin-bottom:28px;}
+  .hero-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:8px;font-family:'Source Code Pro',monospace;}
+  .module-hero h1{font-size:clamp(18px,2.5vw,26px);font-weight:700;color:var(--text);line-height:1.25;}
+  .section-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;}
+  .section-header{padding:14px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+  .section-header:hover{background:var(--bg3);}
+  .section-num{font-size:10px;font-weight:700;color:var(--text-dimmer);min-width:24px;font-family:'Source Code Pro',monospace;}
+  .section-title{font-weight:600;font-size:14px;flex:1;color:var(--text);}
+  .section-toggle{font-size:11px;color:var(--text-dimmer);transition:transform .2s;}
+  .section-toggle.open{transform:rotate(180deg);}
+  .section-body{display:none;padding:20px 22px 14px;border-top:1px solid var(--border);font-size:14px;color:var(--text-dim);line-height:1.75;}
+  .section-body.open{display:block;}
+  .section-body h3{font-size:15px;font-weight:700;color:var(--text);margin:16px 0 8px;}
+  .section-body p{margin-bottom:10px;}
+  .section-body ul,.section-body ol{margin:8px 0 12px 20px;}
+  .section-body li{margin-bottom:4px;}
+  .section-body code{font-family:'Source Code Pro',monospace;font-size:12.5px;background:var(--bg3);border:1px solid var(--border);padding:1px 5px;border-radius:4px;color:#0f4a7a;}
+  .section-body pre{background:#1e2433;color:#cdd6f4;padding:16px;border-radius:8px;font-size:12.5px;font-family:'Source Code Pro',monospace;overflow-x:auto;margin:12px 0;position:relative;}
+  .copy-btn,.copy-btn-small{position:absolute;top:8px;right:8px;background:#252b3b;border:1px solid #3a4155;color:#7a8ab0;border-radius:4px;padding:2px 8px;font-size:10px;cursor:pointer;font-family:'Source Code Pro',monospace;}
+  .copy-btn:hover,.copy-btn-small:hover{color:#cdd6f4;}
+  .reviewer-bar{background:#fff8e6;border:1px solid #f0d4a0;border-left:3px solid #92600a;border-radius:8px;padding:10px 16px;margin:18px 0 6px;display:flex;align-items:center;gap:10px;font-size:13px;color:#92600a;font-family:'Source Code Pro',monospace;}
+  .reviewer-bar input[type="checkbox"]{width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:var(--green);}
+  .reviewer-bar label{cursor:pointer;font-weight:600;user-select:none;}
+  .reviewer-bar.checked{background:var(--green-light);border-color:#a3d4b8;border-left-color:var(--green);color:var(--green);}
+  .reviewer-panel{background:#f5f0ff;border:1px solid #c4bdf0;border-top:3px solid #5b4fcf;border-radius:12px;padding:24px 28px;margin:32px 0;}
+  .reviewer-panel-label{font-size:9px;font-family:'Source Code Pro',monospace;letter-spacing:.18em;text-transform:uppercase;color:#5b4fcf;font-weight:600;margin-bottom:16px;}
+  .reviewer-q-text{font-size:14px;font-weight:600;color:#1a2332;line-height:1.65;margin-bottom:14px;}
+  .reviewer-options{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+  .reviewer-option{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1px solid #d0dae8;border-radius:8px;cursor:pointer;font-size:13.5px;color:#4a5568;line-height:1.5;background:#fff;transition:background .12s,border-color .12s;}
+  .reviewer-option:hover{background:#f0f4f9;border-color:#b8d0ed;}
+  .reviewer-option.selected{background:#e8f1fb;border-color:var(--blue);color:#1a2332;}
+  .reviewer-option.correct{background:var(--green-light);border-color:#a3d4b8;color:var(--green);}
+  .reviewer-option.wrong{background:var(--coral-light);border-color:#f0b8b2;color:var(--coral);}
+  .reviewer-option-key{font-family:'Source Code Pro',monospace;font-size:11px;font-weight:700;color:#8fa3bc;flex-shrink:0;margin-top:1px;}
+  .reviewer-reveal{font-size:12px;font-family:'Source Code Pro',monospace;color:#5b4fcf;cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;margin-bottom:14px;display:block;}
+  .reviewer-explanation{font-size:13px;color:#4a5568;line-height:1.7;padding:12px 14px;background:#eef2f7;border-radius:8px;margin-bottom:16px;display:none;}
+  .reviewer-explanation.visible{display:block;}
+  .reviewer-exp-label{font-size:9px;font-family:'Source Code Pro',monospace;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin-bottom:4px;}
+  .reviewer-exp-label.correct{color:var(--green);}
+  .reviewer-exp-label.wrong{color:var(--coral);}
+  .reviewer-comment-label{font-size:11px;font-family:'Source Code Pro',monospace;letter-spacing:.12em;text-transform:uppercase;color:#8fa3bc;font-weight:600;margin-bottom:6px;}
+  .reviewer-comment{width:100%;min-height:80px;padding:10px 12px;border:1px solid #c4bdf0;border-radius:8px;font-family:'Merriweather Sans',sans-serif;font-size:13.5px;color:#1a2332;background:#fff;resize:vertical;line-height:1.6;}
+  .reviewer-comment:focus{outline:none;border-color:#5b4fcf;}
+  .reviewer-save-note{font-size:11px;font-family:'Source Code Pro',monospace;color:#8fa3bc;margin-top:6px;}
+  .rev-complete-wrap{margin:28px 0 0;}
+  .rev-complete-bar{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:8px;font-size:13.5px;font-family:'Source Code Pro',monospace;font-weight:600;border:1.5px solid var(--border);background:var(--bg3);color:var(--text-dimmer);transition:all .2s;}
+  .rev-complete-bar.disabled{opacity:.6;cursor:not-allowed;}
+  .rev-complete-bar.ready{background:#fff8e6;border-color:#f0d4a0;border-left:3px solid #92600a;color:#92600a;cursor:pointer;}
+  .rev-complete-bar.done{background:var(--green-light);border-color:#a3d4b8;border-left:3px solid var(--green);color:var(--green);cursor:default;}
+  .rev-complete-bar input[type="checkbox"]{width:18px;height:18px;flex-shrink:0;accent-color:var(--green);}
+  .rev-complete-bar.disabled input{cursor:not-allowed;}
+  .rev-complete-hint{font-size:11px;font-family:'Source Code Pro',monospace;color:var(--text-dimmer);margin-top:6px;min-height:16px;}
+  .bottom-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0 0;border-top:1px solid var(--border);margin-top:40px;}
+  .nav-btn{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-family:'Source Code Pro',monospace;color:var(--blue);text-decoration:none;padding:10px 18px;border:1px solid var(--blue-mid);border-radius:8px;background:var(--blue-light);font-weight:600;}
+  .nav-btn.secondary{background:var(--bg2);color:var(--text-dim);border-color:var(--border);}
+  .nav-btn:hover{background:var(--blue-mid);}
+</style>
+<style>
+.section-questions{margin-top:16px;border-top:2px solid #e2e8f0;padding-top:16px;}
+.section-question-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:12px;}
+.section-question-item.answered-correct{border-color:#16a34a;background:#f0fdf4;}
+.section-question-item.answered-wrong{border-color:#dc2626;background:#fef2f2;}
+.sq-text{font-size:14px;font-weight:600;color:#0f172a;margin-bottom:10px;}
+.sq-options{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+.sq-option{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:13px;background:#fff;transition:all .15s;}
+.sq-option:hover{border-color:#2563eb;background:#eff6ff;}
+.sq-option.selected{border-color:#2563eb;background:#eff6ff;}
+.sq-option.correct{border-color:#16a34a;background:#f0fdf4;color:#16a34a;font-weight:600;}
+.sq-option.wrong{border-color:#dc2626;background:#fef2f2;color:#dc2626;}
+.sq-option-key{font-family:'Source Code Pro',monospace;font-size:11px;font-weight:700;color:#94a3b8;min-width:18px;}
+.sq-feedback{font-size:12px;font-weight:700;padding:4px 0;}
+.sq-feedback.correct{color:#16a34a;}
+.sq-feedback.wrong{color:#dc2626;}
+.sq-check-btn{background:#2563eb;color:#fff;border:none;border-radius:7px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;}
+.sq-check-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.section-complete-btn{display:flex;align-items:center;gap:8px;background:transparent;border:2px solid #e2e8f0;color:#94a3b8;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:not-allowed;margin-top:14px;transition:all .2s;}
+.section-complete-btn.unlocked{border-color:#16a34a;color:#16a34a;cursor:pointer;background:#f0fdf4;}
+.section-complete-btn.done{border-color:#16a34a;background:#16a34a;color:#fff;cursor:default;}
+.module-complete-wrap{background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:20px;margin-top:28px;text-align:center;}
+.module-complete-btn{background:#16a34a;color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;opacity:0.4;pointer-events:none;transition:all .2s;}
+.module-complete-btn.unlocked{opacity:1;pointer-events:auto;}
+.module-complete-hint{font-size:13px;color:#64748b;margin-top:8px;}
+.reviewer-comment-wrap{margin-top:20px;}
+.reviewer-comment-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px;}
+.reviewer-comment{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;resize:vertical;min-height:80px;outline:none;}
+.reviewer-comment:focus{border-color:#2563eb;}
+</style>
+</head>
+<body>
+<div class="sf-signin-overlay" id="sfSigninOverlay">
+  <div class="sf-signin-card">
+    <div class="sf-signin-logo">🔐</div>
+    <div class="sf-signin-title">Sign in to save your progress</div>
+    <div class="sf-signin-sub">Sign in with your SourceFuse Gmail. Review progress, checkboxes and question attempts are saved and restored across devices.</div>
+    <button class="sf-google-btn" id="sfGoogleSignInBtn"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Sign in with Google</button>
+    <div class="sf-signin-divider">or</div>
+    <input type="text" class="sf-fallback-input" id="sfEmailInput" placeholder="your.name@sourcefuse.com" autocomplete="off" inputmode="email">
+    <input type="password" class="sf-fallback-input" id="sfPasswordInput" placeholder="Password (test users only)" autocomplete="off" style="margin-top:6px;">
+    <button class="sf-fallback-btn" id="sfEmailSignInBtn">Continue with email</button>
+    <div class="sf-signin-error" id="sfSigninError"></div>
+  </div>
+</div>
+<div class="sf-signed-in-bar hidden" id="sfSignedInBar"><span id="sfSignedInEmail">Signed in as …</span><button class="sf-signout-btn" id="sfSignoutLink">Sign out</button></div>
+<div class="reviewer-topbanner"><span>👁</span><strong>Reviewer Mode</strong> — Module 6: Prometheus Module 6</div>
+<div class="main">
+  <div class="module-hero">
+    <div class="hero-eyebrow">Module 6 of 6 · Reviewer Mode</div>
+    <h1>Prometheus Module 6</h1>
+    <p style="color:#64748b;font-size:14px;margin-top:8px;">Review each section carefully and answer all questions correctly to mark sections complete. Once all sections are complete, submit your module review.</p>
+  </div>
+  <div id="sections-container"></div>
+  <div class="module-complete-wrap">
+    <div class="module-complete-hint" id="module-complete-hint">Complete all sections to unlock</div>
+    <div class="reviewer-comment-wrap">
+      <div class="reviewer-comment-label">Module Review Notes</div>
+      <textarea class="reviewer-comment" id="module-comment" placeholder="Add your overall notes for this module…"></textarea>
+    </div>
+    <button class="module-complete-btn" id="module-complete-btn" onclick="submitModuleComplete()">✓ Mark Module 6 as Reviewed</button>
+  </div>
+</div>
+<script>
+function sfShowError(msg){const el=document.getElementById('sfSigninError');if(el){el.textContent=msg;el.classList.add('visible');}}
+function sfHideOverlay(user){
+  window.sfReviewerEmail=user.email||user;window.sfReviewerUid=user.uid||'email_'+btoa(window.sfReviewerEmail).replace(/=/g,'');
+  const ov=document.getElementById('sfSigninOverlay');if(ov)ov.classList.add('hidden');
+  const bar=document.getElementById('sfSignedInBar');const lbl=document.getElementById('sfSignedInEmail');
+  if(bar)bar.classList.remove('hidden');if(lbl)lbl.textContent='Signed in as '+window.sfReviewerEmail;
+  if(typeof sfInitSession==='function')sfInitSession();
+  if(window._sfFirebaseReady&&typeof window.sfDb!=='undefined'&&typeof sfFetchAndMerge==='function')sfFetchAndMerge();
+}
+const SF_TEST_USERS={'ravjv2013@gmail.com':'SF-Test-2026!','noushin.khan7official@gmail.com':'SF-Test-2026!'};
+function sfSignInWithEmail(){const emailEl=document.getElementById('sfEmailInput');if(!emailEl)return;const email=emailEl.value.trim().toLowerCase();const pwdEl=document.getElementById('sfPasswordInput');const pwd=pwdEl?pwdEl.value:'';if(!email||!email.includes('@')){sfShowError('Please enter a valid email address.');return;}if(SF_TEST_USERS[email]){if(SF_TEST_USERS[email]!==pwd){sfShowError('Invalid test credentials.');return;}sfHideOverlay(email);return;}if(!email.endsWith('@sourcefuse.com')){sfShowError('Please use your @sourcefuse.com email address.');return;}sfHideOverlay(email);}
+async function sfSignInWithGoogle(){if(typeof firebase==='undefined'||!window._sfFirebaseReady){sfShowError('Popup blocked. Please enter your SF email below.');return;}const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({hd:'sourcefuse.com',prompt:'select_account'});const t=setTimeout(()=>sfShowError('Popup blocked. Please enter your SF email below.'),30000);try{const r=await firebase.auth().signInWithPopup(provider);clearTimeout(t);sfHideOverlay(r.user);}catch(e){clearTimeout(t);sfShowError('Popup blocked. Please enter your SF email below.');}}
+function sfSignOut(){window.sfReviewerEmail=null;window.sfReviewerUid=null;const bar=document.getElementById('sfSignedInBar');const ov=document.getElementById('sfSigninOverlay');if(bar)bar.classList.add('hidden');if(ov)ov.classList.remove('hidden');if(typeof firebase!=='undefined'&&window._sfFirebaseReady)firebase.auth().signOut();}
+document.addEventListener('DOMContentLoaded',function(){const gb=document.getElementById('sfGoogleSignInBtn');const eb=document.getElementById('sfEmailSignInBtn');const so=document.getElementById('sfSignoutLink');if(gb)gb.addEventListener('click',sfSignInWithGoogle);if(eb)eb.addEventListener('click',sfSignInWithEmail);if(so)so.addEventListener('click',sfSignOut);});
+</script>
+<script>
+const HUB_URL = 'https://sflearningdevelopment.github.io/sf-knowledge-hub/index.html';
+const SECTION_COUNT = 19076;
+const SECTION_QUESTIONS = {};
+
+function submitModuleComplete() {
+  const btn = document.getElementById('module-complete-btn');
+  if (!btn.classList.contains('unlocked')) return;
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  const comment = document.getElementById('module-comment')?.value || '';
+  const completedAt = new Date().toISOString();
+  if (typeof sfWrite === 'function') {
+    sfWrite({ completed: true, comment, completedAt, sectionCount: SECTION_COUNT });
+  }
+  setTimeout(() => { window.location.href = HUB_URL; }, 1200);
+}
+</script>
+<script>
+const REV_KEY='reviewer_'+window.location.pathname.replace(/[^a-z0-9]/gi,'_');
+const BADGES={foundation:'Foundation',essential:'Essential',important:'Important'};
+const SECTIONS=[
+  {id:1, title:'Prometheus as a Grafana Data Source', badge:'foundation', content:`
+    <h3>🔗 Connecting Grafana to Prometheus</h3>
+    <p>Grafana treats Prometheus as a <strong>data source</strong> — a named connection to a Prometheus HTTP API. You can have multiple Prometheus data sources pointing to different Prometheus instances (e.g. production vs staging).</p>
+    <h3>⚙️ Configuration</h3>
+    <p>In Grafana UI: <strong>Connections → Data Sources → Add data source → Prometheus</strong></p>
+    <table>
+      <tr><th>Setting</th><th>Value</th><th>Notes</th></tr>
+      <tr><td>URL</td><td><code>http://prometheus:9090</code></td><td>Internal cluster URL when Grafana is in Kubernetes</td></tr>
+      <tr><td>Scrape interval</td><td><code>15s</code></td><td>Should match your Prometheus scrape_interval</td></tr>
+      <tr><td>Query timeout</td><td><code>60s</code></td><td>Increase for slow/complex queries</td></tr>
+      <tr><td>HTTP Method</td><td>POST</td><td>Use POST for long queries to avoid URL length limits</td></tr>
+    </table>
+    <h3>🔧 As Code (Grafana Provisioning)</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button"># datasources/prometheus.yml
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    url: http://prometheus-operated.monitoring.svc:9090
+    access: proxy
+    isDefault: true
+    jsonData:
+      timeInterval: '15s'
+      queryTimeout: '60s'
+      httpMethod: POST</pre>
+    <div class="callout callout-info"><h4>ℹ️ access: proxy vs direct</h4>
+      <p><code>access: proxy</code> means Grafana's backend makes the Prometheus API call — the browser never talks to Prometheus directly. This is the correct setting for production. <code>access: direct</code> (browser-side) is deprecated and should not be used.</p>
+    </div>
+    <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
+      <p>In kube-prometheus-stack, the Prometheus data source is automatically provisioned via a ConfigMap. When a customer says "my data source disappeared after a Helm upgrade," check the ConfigMap — the provisioned data source overrides any manual UI changes on every restart.</p>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>What does access: proxy mean for a Grafana data source?</li>
+        <li>Where in the Grafana UI do you add a new data source?</li>
+        <li>What scrape interval setting in Grafana should match what Prometheus setting?</li>
+      </ul>
+    </div>
+  `},
+  {id:2, title:'Dashboard Variables & Template Queries', badge:'essential', content:`
+    <h3>🔧 Variables — Dynamic Dashboards</h3>
+    <p>Dashboard variables allow a single dashboard to serve multiple namespaces, nodes, clusters, or applications. Variables are referenced in PromQL queries as <code>$variable_name</code> or <code>${variable_name}</code>.</p>
+    <h3>📋 Common Variable Types</h3>
+    <table>
+      <tr><th>Type</th><th>Use case</th><th>Example query</th></tr>
+      <tr><td><strong>Query</strong></td><td>Populated from Prometheus label values</td><td><code>label_values(kube_pod_info, namespace)</code></td></tr>
+      <tr><td><strong>Custom</strong></td><td>Fixed list of options</td><td><code>production, staging, development</code></td></tr>
+      <tr><td><strong>Constant</strong></td><td>Fixed value — use for cluster names</td><td><code>my-cluster</code></td></tr>
+      <tr><td><strong>Interval</strong></td><td>Time window options for rate()</td><td><code>1m, 5m, 15m, 1h</code></td></tr>
+      <tr><td><strong>Datasource</strong></td><td>Switch between Prometheus instances</td><td>Prometheus data sources list</td></tr>
+    </table>
+    <h3>🔍 PromQL with Variables</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button"># Variable: namespace = label_values(kube_pod_info, namespace)
+# Variable: pod = label_values(kube_pod_info{namespace="$namespace"}, pod)
+# Variable: interval = [1m, 5m, 10m, 30m, 1h]
+
+# Query using all three variables
+sum(rate(container_cpu_usage_seconds_total{
+  namespace="$namespace",
+  pod="$pod",
+  container!=""
+}[$interval])) by (container)</pre>
+    <div class="callout callout-warn"><h4>⚠️ Variable Cardinality Warning</h4>
+      <p><code>label_values()</code> queries all unique values for a label. On a high-cardinality label (e.g. pod names with thousands of entries), this query can be slow and strain Prometheus. Use a <strong>metric selector</strong> to narrow results: <code>label_values(kube_pod_info{namespace="$namespace"}, pod)</code> instead of <code>label_values(kube_pod_info, pod)</code>.</p>
+    </div>
+    <div class="callout callout-tip"><h4>💡 Multi-Value Variables</h4>
+      <p>Enable "Multi-value" and "Include All option" on a variable to allow selecting multiple values. Use <code>=~"$namespace"</code> (regex match) instead of <code>="$namespace"</code> (exact match) in your PromQL — Grafana automatically joins multi-selected values with <code>|</code> for regex matching.</p>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>Which Grafana variable type is populated by querying Prometheus label values?</li>
+        <li>Why should you use =~ instead of = when a dashboard variable is multi-value?</li>
+        <li>What label_values() query would list all pods in a selected namespace?</li>
+      </ul>
+    </div>
+  `},
+  {id:3, title:'Panel Types & Visualisation Best Practices', badge:'essential', content:`
+    <h3>📊 Choosing the Right Panel</h3>
+    <p>Grafana has many panel types. Choosing the wrong one is one of the most common mistakes in dashboard design. Match the panel type to what the data represents.</p>
+    <table>
+      <tr><th>Panel Type</th><th>Best for</th><th>Prometheus metric type</th></tr>
+      <tr><td><strong>Time series</strong></td><td>Trends over time — requests/sec, CPU usage</td><td>Any — with rate() for counters</td></tr>
+      <tr><td><strong>Stat</strong></td><td>Single current value — uptime, current error rate</td><td>Gauge or instant rate()</td></tr>
+      <tr><td><strong>Gauge</strong></td><td>Value relative to min/max — disk %, memory %</td><td>Gauge (0-100 range)</td></tr>
+      <tr><td><strong>Bar chart</strong></td><td>Comparing values across categories — errors per service</td><td>Aggregated instant vector</td></tr>
+      <tr><td><strong>Table</strong></td><td>Detailed breakdown — per-pod resource usage</td><td>Any aggregated metric</td></tr>
+      <tr><td><strong>Heatmap</strong></td><td>Distribution over time — request latency spread</td><td>Histogram buckets</td></tr>
+      <tr><td><strong>Logs</strong></td><td>Log entries — requires Loki data source</td><td>N/A (Loki)</td></tr>
+    </table>
+    <h3>🎨 Panel Best Practices</h3>
+    <ul>
+      <li><strong>Always set units:</strong> Set the unit (bytes, seconds, percent) in panel options — Grafana auto-formats large numbers when units are set</li>
+      <li><strong>Use meaningful legends:</strong> <code>{{pod}}</code> not <code>{{__name__}}</code></li>
+      <li><strong>Set thresholds:</strong> Use green/yellow/red thresholds on Stat and Gauge panels to give immediate visual context</li>
+      <li><strong>Limit series count:</strong> More than 20-30 lines on a time series panel becomes unreadable — use topk() or aggregate</li>
+      <li><strong>Use appropriate time ranges:</strong> Set sensible default time ranges — last 1h for operational dashboards, last 7d for capacity planning</li>
+    </ul>
+    <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
+      <p>The most common support question about panels: "Why does my Stat panel show a huge number like 1234567890 for bytes?" — always check if the unit is set. Setting the unit to "bytes (IEC)" makes Grafana display "1.15 GiB" automatically. Units are set under Standard options → Unit in the panel editor.</p>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>Which panel type is best suited for displaying histogram latency distribution over time?</li>
+        <li>A Stat panel shows raw bytes instead of GB — what is the likely cause?</li>
+        <li>Which PromQL function limits the display to the top 5 pods by CPU?</li>
+      </ul>
+    </div>
+  `},
+  {id:4, title:'Troubleshooting: No Data & Errors', badge:'important', content:`
+    <h3>🔍 Systematic Debugging Approach</h3>
+    <p>When a Grafana panel shows "No data" or an error, follow this systematic approach before touching any configuration.</p>
+    <h3>🪜 Step-by-Step Debugging Ladder</h3>
+    <ol>
+      <li><strong>Check the Prometheus data source:</strong> Connections → Data Sources → Test. If it fails, Grafana can't reach Prometheus at all.</li>
+      <li><strong>Run the query in Prometheus UI:</strong> Copy the PromQL expression to Prometheus UI (port 9090) → Graph tab. If it returns data there but not in Grafana, the issue is the data source connection or time range.</li>
+      <li><strong>Check the time range:</strong> Is the Grafana time range outside Prometheus retention? Does the time range match when the metric existed?</li>
+      <li><strong>Check label matchers:</strong> Are dashboard variable values correct for this environment? Switch <code>="$namespace"</code> to <code>=~".*"</code> temporarily to see all data.</li>
+      <li><strong>Check if the target is up:</strong> Query <code>up{job="your-job"}</code> — if 0 or absent, the exporter isn't being scraped.</li>
+      <li><strong>Check if the metric exists:</strong> Type just the metric name in Prometheus UI — does it appear in autocomplete?</li>
+      <li><strong>Check for recording rules:</strong> If the query uses a recording rule metric, verify the rule is loaded (Prometheus UI → Status → Rules).</li>
+    </ol>
+    <h3>🚨 Common Error Messages</h3>
+    <table>
+      <tr><th>Error</th><th>Likely cause</th><th>Fix</th></tr>
+      <tr><td>"No data"</td><td>Label mismatch, metric doesn't exist, wrong time range</td><td>Debug step by step above</td></tr>
+      <tr><td>"Context deadline exceeded"</td><td>Query too slow, timeout too short</td><td>Increase query timeout, use recording rules</td></tr>
+      <tr><td>"Bad Gateway"</td><td>Grafana can't reach Prometheus</td><td>Check data source URL, network policy</td></tr>
+      <tr><td>"parse error"</td><td>Invalid PromQL syntax</td><td>Test in Prometheus UI, check brackets</td></tr>
+      <tr><td>"vector cannot contain metrics with the same labelset"</td><td>Duplicate label sets after aggregation</td><td>Add more labels to by() clause</td></tr>
+    </table>
+    <div class="callout callout-tip"><h4>💡 The Inspector Tool</h4>
+      <p>In Grafana, every panel has an <strong>Inspect</strong> option (right-click panel title → Inspect → Query). This shows the exact PromQL sent to Prometheus and the raw response — invaluable for debugging what Grafana is actually asking for vs what you expect.</p>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>A panel shows data in Prometheus UI but not in Grafana — what should you check first?</li>
+        <li>What error indicates Prometheus took too long to respond?</li>
+        <li>Where in Grafana can you see the exact PromQL query being sent to Prometheus?</li>
+      </ul>
+    </div>
+  `},
+  {id:5, title:'Grafana Provisioning & GitOps', badge:'important', content:`
+    <h3>📦 Provisioning — Configuration as Code</h3>
+    <p>Grafana supports <strong>provisioning</strong> — loading dashboards, data sources, and alert rules from files on startup. This enables GitOps workflows where all Grafana configuration is version-controlled.</p>
+    <h3>📂 Provisioning File Structure</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button">/etc/grafana/provisioning/
+├── datasources/
+│   └── prometheus.yml      # Data source definitions
+├── dashboards/
+│   └── dashboards.yml      # Dashboard provider config
+└── alerting/
+    └── alerts.yml          # Alert rules and notification policies</pre>
+    <h3>📊 Dashboard Provider Configuration</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button"># dashboards/dashboards.yml
+apiVersion: 1
+providers:
+  - name: 'default'
+    orgId: 1
+    folder: 'Kubernetes'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards   # Where dashboard JSON files live</pre>
+    <h3>🔄 In kube-prometheus-stack (Helm)</h3>
+    <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button"># values.yaml — add a custom dashboard
+grafana:
+  dashboards:
+    default:
+      my-custom-dashboard:
+        json: |
+          { "title": "My Dashboard", ... }
+
+  # Or reference a ConfigMap
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: custom
+          folder: Custom
+          type: file
+          options:
+            path: /var/lib/grafana/dashboards/custom</pre>
+    <div class="callout callout-warn"><h4>⚠️ Provisioned Dashboards Are Read-Only</h4>
+      <p>Dashboards loaded via provisioning show a lock icon in Grafana — they cannot be saved in the UI. Any manual edits made in the browser are lost on restart. To make a provisioned dashboard editable, set <code>editable: true</code> in the provider config and <code>disableDeletion: false</code>.</p>
+    </div>
+    <div class="callout callout-grafana"><h4>🔗 Grafana Context</h4>
+      <p>The kube-prometheus-stack ships with 30+ pre-provisioned dashboards for Kubernetes, nodes, pods, and namespaces. When a customer says "my dashboards disappeared after upgrading Helm," the cause is usually that the dashboard ConfigMaps were recreated and the IDs changed — causing Grafana to treat them as new dashboards rather than updates to existing ones.</p>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>Why can't a user save edits to a provisioned Grafana dashboard?</li>
+        <li>What directory does Grafana look in for provisioned data source definitions?</li>
+        <li>In kube-prometheus-stack, how are custom dashboards typically added via Helm?</li>
+      </ul>
+    </div>
+  `},
+  {id:6, title:'Support Engineering: Common Scenarios', badge:'important', content:`
+    <h3>🛠️ Real-World Support Scenarios</h3>
+    <p>This section covers the most common support tickets a Grafana Support Engineer handles involving Prometheus. Each scenario describes the symptom, root cause, and resolution.</p>
+    <h3>📋 Scenario Library</h3>
+    <div class="analogy-box">
+      <h4>Scenario 1: "My dashboard shows No Data after migrating clusters"</h4>
+      <div style="font-size:0.83rem;color:var(--text2);margin-top:8px;">
+        <strong style="color:var(--text);">Root cause:</strong> Label values changed — old cluster had <code>instance="10.0.0.1:9090"</code>, new has <code>instance="prometheus.monitoring.svc:9090"</code>. Dashboard variable <code>$instance</code> has no match.<br/>
+        <strong style="color:var(--text);">Fix:</strong> Update the variable query or use regex matching. Check Prometheus targets for the new instance label format.
+      </div>
+    </div>
+    <div class="analogy-box">
+      <h4>Scenario 2: "Alert is firing in Prometheus but I'm not getting a Slack notification"</h4>
+      <div style="font-size:0.83rem;color:var(--text2);margin-top:8px;">
+        <strong style="color:var(--text);">Root cause:</strong> Usually one of: (a) Alert is in Pending not Firing state — <code>for</code> duration not elapsed. (b) Alertmanager routing doesn't match alert labels. (c) Alert is silenced. (d) Slack webhook URL is wrong or expired.<br/>
+        <strong style="color:var(--text);">Fix:</strong> Check Alertmanager UI → Alerts for the alert status. Check Status → Config for routing rules. Use <code>amtool config routes test</code> to verify routing.
+      </div>
+    </div>
+    <div class="analogy-box">
+      <h4>Scenario 3: "Grafana dashboard is very slow to load"</h4>
+      <div style="font-size:0.83rem;color:var(--text2);margin-top:8px;">
+        <strong style="color:var(--text);">Root cause:</strong> High-cardinality queries — one or more panels running expensive PromQL across millions of series. Common culprits: missing <code>by()</code> clauses, <code>label_values()</code> on unbounded labels, long time ranges with low-resolution data.<br/>
+        <strong style="color:var(--text);">Fix:</strong> Use Grafana Inspector to find which panel is slow. Add recording rules for expensive queries. Narrow label selectors. Reduce default time range.
+      </div>
+    </div>
+    <div class="analogy-box">
+      <h4>Scenario 4: "Container memory usage is doubling what I expect"</h4>
+      <div style="font-size:0.83rem;color:var(--text2);margin-top:8px;">
+        <strong style="color:var(--text);">Root cause:</strong> Missing <code>container!=""</code> filter in cAdvisor queries — includes pause container (pod sandbox) metrics, which double-counts usage.<br/>
+        <strong style="color:var(--text);">Fix:</strong> Add <code>container!=""</code> to all container_* metric queries.
+      </div>
+    </div>
+    <div class="analogy-box">
+      <h4>Scenario 5: "SSL certificate alert not firing even though cert expires in 10 days"</h4>
+      <div style="font-size:0.83rem;color:var(--text2);margin-top:8px;">
+        <strong style="color:var(--text);">Root cause:</strong> blackbox_exporter not scraping that target — check Prometheus Targets page. Or the alert threshold is set to days but the metric is in seconds.<br/>
+        <strong style="color:var(--text);">Fix:</strong> Verify <code>probe_ssl_earliest_cert_expiry</code> exists for that target. Check the alert expr: <code>(probe_ssl_earliest_cert_expiry - time()) / 86400 &lt; 30</code> — divide by 86400 to convert seconds to days.
+      </div>
+    </div>
+    <div class="callout callout-tip"><h4>💡 Support Engineer Toolkit</h4>
+      <ul>
+        <li><strong>Prometheus UI</strong> (port 9090): Verify targets, rules, alerts, and run queries directly</li>
+        <li><strong>Alertmanager UI</strong> (port 9093): Check active alerts, silences, routing, config</li>
+        <li><strong>Grafana Inspector</strong>: See exact PromQL, raw response, query timing</li>
+        <li><strong>kubectl logs</strong>: Check Prometheus, Alertmanager, Grafana pod logs for errors</li>
+        <li><strong>amtool</strong>: CLI for Alertmanager — test routing, manage silences, check config</li>
+        <li><strong>promtool</strong>: CLI for Prometheus — validate config and rules before applying</li>
+      </ul>
+    </div>
+    <div class="test-questions"><h4>🎯 Likely Exam Questions</h4>
+      <ul>
+        <li>A customer's container memory metrics are doubled — what is the most likely cause?</li>
+        <li>An alert is Firing in Prometheus but Alertmanager is not sending notifications — list three possible causes.</li>
+        <li>Which tool would you use to test Alertmanager routing for a specific alert?</li>
+      </ul>
+    </div>
+  `}
+];
+const SQ=typeof SECTION_QUESTIONS!=='undefined'?SECTION_QUESTIONS:{};
+function revLoad(){try{return JSON.parse(localStorage.getItem(REV_KEY))||{};}catch(e){return {};}}
+function revSave(s){localStorage.setItem(REV_KEY,JSON.stringify(s));if(typeof sfWrite==='function')sfWrite(s);}
+
+function allSectionsComplete(){
+  return SECTIONS.every(s=>revLoad()['section_complete_'+s.id]===true);
+}
+
+function updateModuleCompleteBtn(){
+  const btn=document.getElementById('module-complete-btn');
+  const hint=document.getElementById('module-complete-hint');
+  if(!btn)return;
+  const state=revLoad();
+  if(state.completed){
+    btn.textContent='✓ Module Review Submitted';
+    btn.classList.add('unlocked');
+    btn.disabled=true;
+    if(hint)hint.textContent='Review submitted on '+new Date(state.completedAt).toLocaleString();
+    return;
+  }
+  const done=SECTIONS.filter(s=>state['section_complete_'+s.id]===true).length;
+  const total=SECTIONS.length;
+  if(done===total){
+    btn.classList.add('unlocked');
+    if(hint)hint.textContent='All '+total+' sections complete. You may now submit your module review.';
+  } else {
+    btn.classList.remove('unlocked');
+    if(hint)hint.textContent=done+' of '+total+' sections complete. Complete all sections to unlock.';
+  }
+}
+
+function buildQuestionBlock(secId,questions){
+  if(!questions||!questions.length)return '';
+  const keys=['A','B','C','D'];
+  const state=revLoad();
+  const secDone=state['section_complete_'+secId]===true;
+  let html='<div class="section-questions">';
+  questions.forEach((q,qi)=>{
+    const answered=state['sq_'+secId+'_'+qi+'_correct']===true;
+    html+='<div class="section-question-item'+(answered?' answered-correct':'')+'" id="sq-item-'+secId+'-'+qi+'">';
+    html+='<div class="sq-text">'+(qi+1)+'. '+q.q.replace(/</g,'&lt;')+'</div>';
+    html+='<div class="sq-options" id="sq-opts-'+secId+'-'+qi+'">';
+    q.o.forEach((opt,oi)=>{
+      html+='<div class="sq-option" data-sec="'+secId+'" data-q="'+qi+'" data-i="'+oi+'" onclick="sqSelect(this)"><span class="sq-option-key">'+keys[oi]+'</span><span>'+opt.replace(/</g,'&lt;')+'</span></div>';
+    });
+    html+='</div>';
+    html+='<div class="sq-feedback" id="sq-fb-'+secId+'-'+qi+'"></div>';
+    html+='<button class="sq-check-btn" id="sq-btn-'+secId+'-'+qi+'" onclick="sqCheck('+secId+','+qi+','+q.c+')" '+(answered?'disabled':'')+'>Check Answer</button>';
+    html+='</div>';
+  });
+  html+='</div>';
+  const allAnswered=questions.every((_,qi)=>revLoad()['sq_'+secId+'_'+qi+'_correct']===true);
+  html+='<button class="section-complete-btn'+(allAnswered||secDone?' unlocked':'')+' '+(secDone?'done':'')+'" id="sec-complete-btn-'+secId+'" onclick="sectionComplete('+secId+')" '+(secDone?'disabled':(allAnswered?'':'disabled'))+'>'+(secDone?'✓ Section Reviewed':'Mark Section as Reviewed')+'</button>';
+  return html;
+}
+
+window.sqSelect=function(el){
+  const secId=el.dataset.sec,qi=el.dataset.q;
+  document.querySelectorAll('[data-sec="'+secId+'"][data-q="'+qi+'"]').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+};
+
+window.sqCheck=function(secId,qi,correctIdx){
+  const selected=document.querySelector('[data-sec="'+secId+'"][data-q="'+qi+'"].selected');
+  if(!selected){alert('Please select an answer first.');return;}
+  const chosenIdx=parseInt(selected.dataset.i);
+  const isCorrect=(chosenIdx===correctIdx);
+  const fb=document.getElementById('sq-fb-'+secId+'-'+qi);
+  const btn=document.getElementById('sq-btn-'+secId+'-'+qi);
+  const item=document.getElementById('sq-item-'+secId+'-'+qi);
+  if(isCorrect){
+    selected.classList.add('correct');
+    if(fb){fb.textContent='✓ Correct!';fb.className='sq-feedback correct';}
+    if(btn)btn.disabled=true;
+    if(item)item.classList.add('answered-correct');
+    const st=revLoad();st['sq_'+secId+'_'+qi+'_correct']=true;revSave(st);
+    const secQs=SQ[secId]||[];
+    const allCorrect=secQs.every((_,i)=>revLoad()['sq_'+secId+'_'+i+'_correct']===true);
+    const secBtn=document.getElementById('sec-complete-btn-'+secId);
+    if(allCorrect&&secBtn){secBtn.classList.add('unlocked');secBtn.removeAttribute('disabled');}
+  } else {
+    selected.classList.add('wrong');
+    if(fb){fb.textContent='✗ Incorrect — please try again.';fb.className='sq-feedback wrong';}
+    setTimeout(()=>{
+      selected.classList.remove('wrong','selected');
+      if(fb){fb.textContent='';fb.className='sq-feedback';}
+    },1500);
+  }
+};
+
+window.sectionComplete=function(secId){
+  const btn=document.getElementById('sec-complete-btn-'+secId);
+  if(!btn||!btn.classList.contains('unlocked'))return;
+  btn.classList.add('done');btn.disabled=true;btn.textContent='✓ Section Reviewed';
+  const st=revLoad();st['section_complete_'+secId]=true;st['section_completed_at_'+secId]=new Date().toISOString();revSave(st);
+  updateModuleCompleteBtn();
+};
+
+window.toggleSection=(id)=>{const body=document.getElementById('body-'+id);const toggle=document.getElementById('toggle-'+id);const isOpen=body.classList.contains('open');document.querySelectorAll('.section-body').forEach(b=>b.classList.remove('open'));document.querySelectorAll('.section-toggle').forEach(t=>t.classList.remove('open'));if(!isOpen){body.classList.add('open');toggle.classList.add('open');}};
+window.copyCode=(btn)=>{const text=btn.parentElement.innerText.replace('Copy','').trim();navigator.clipboard.writeText(text).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500);});};
+
+function renderAll(){
+  const sec=document.getElementById('sections-container');if(!sec)return;sec.innerHTML='';
+  const s0=revLoad();
+  SECTIONS.forEach(s=>{
+    const secDone=s0['section_complete_'+s.id]===true;
+    const sd=document.createElement('div');sd.className='section-block';
+    const badgeTxt=BADGES[s.badge]||s.badge||'';
+    const questions=SQ[s.id]||[];
+    const qBlock=buildQuestionBlock(s.id,questions);
+    sd.innerHTML='<div class="section-header" onclick="toggleSection('+s.id+')"><span class="section-num">'+s.id+'.</span><span class="section-title">'+s.title+'</span>'+(badgeTxt?'<span style="font-size:10px;padding:2px 7px;border-radius:4px;font-weight:700;background:#e8f1fb;color:#1a6eb5;font-family:Source Code Pro,monospace;">'+badgeTxt+'</span>':'')+(secDone?'<span style="font-size:12px;margin-left:4px;">✅</span>':'')+'<span class="section-toggle" id="toggle-'+s.id+'">▼</span></div><div class="section-body" id="body-'+s.id+'">'+s.content+'</div>';
+    sec.appendChild(sd);
+    if(qBlock){const bodyEl=document.getElementById('body-'+s.id);if(bodyEl)bodyEl.insertAdjacentHTML('beforeend',qBlock);}
+  });
+  updateModuleCompleteBtn();
+}
+
+const moduleCommentEl=document.getElementById('module-comment');
+if(moduleCommentEl){
+  const s=revLoad();if(s.moduleComment)moduleCommentEl.value=s.moduleComment;
+  moduleCommentEl.addEventListener('input',()=>{const s=revLoad();s.moduleComment=moduleCommentEl.value;revSave(s);});
+}
+renderAll();
+</script>
+<script>
+(function(){var scripts=['https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js'];function loadNext(i){if(i>=scripts.length){window._sfFirebaseReady=true;initRevFirebase();return;}var s=document.createElement('script');s.src=scripts[i];s.onload=function(){loadNext(i+1);};s.onerror=function(){window._sfFirebaseReady=false;};document.head.appendChild(s);}loadNext(0);})();
+</script>
+<script>
+function initRevFirebase(){
+  const SF_CONFIG={apiKey:"AIzaSyA-8fatW5D7uR69rcuGFPH54IFqrz0PhU0",authDomain:"sfcertification-grafana.firebaseapp.com",projectId:"sfcertification-grafana",storageBucket:"sfcertification-grafana.firebasestorage.app",messagingSenderId:"227322696511",appId:"1:227322696511:web:12e7ced7dd3d45fa06798a"};
+  if(!firebase.apps.length)firebase.initializeApp(SF_CONFIG);
+  window.sfAuth=firebase.auth();window.sfDb=firebase.firestore();
+  const REV_KEY_FB='reviewer_prometheus-essentials_module-6';
+  const COURSE_ID='Hea541StRT71fQWSIOce';
+  function sfDocRef(){if(!window.sfReviewerUid)return null;return window.sfDb.collection('reviewerSessions').doc(window.sfReviewerUid).collection('prometheus-essentials').doc('module-6');}
+  function sfInitSession(){const local=revLoad();if(!local.startedAt){local.startedAt=new Date().toISOString();localStorage.setItem(REV_KEY,JSON.stringify(local));}if(!window._sfFirebaseReady||!window.sfReviewerUid)return;sfDocRef().set({email:window.sfReviewerEmail,moduleId:'module-6',courseId:COURSE_ID,startedAt:local.startedAt,lastUpdated:firebase.firestore.FieldValue.serverTimestamp(),reviewComplete:local.reviewComplete||false,attemptCount:local.attemptCount||0},{merge:true}).catch(e=>console.warn('SF init:',e.message));}
+  window.sfInitSession=sfInitSession;
+  window.sfWrite=function(extra){if(!window._sfFirebaseReady||!window.sfReviewerUid)return;const ref=sfDocRef();if(!ref)return;const local=revLoad();const payload=Object.assign({},local,extra,{email:window.sfReviewerEmail,moduleId:'module-6',courseId:COURSE_ID,lastUpdated:firebase.firestore.FieldValue.serverTimestamp()});ref.set(payload,{merge:true}).catch(e=>console.warn('SF write:',e.message));};
+  window.sfFetchAndMerge=async function(){const ref=sfDocRef();if(!ref)return;try{const snap=await ref.get();if(!snap.exists)return;const remote=snap.data();const local=revLoad();const merged=Object.assign({},local,remote);delete merged.email;delete merged.lastUpdated;localStorage.setItem(REV_KEY,JSON.stringify(merged));if(typeof renderAll==='function'){renderAll();}if(typeof updateCompleteBar==='function')updateCompleteBar();}catch(e){console.warn('SF fetch:',e.message);}};
+  function sfHideOverlayFB(user){window.sfReviewerEmail=user.email;window.sfReviewerUid=user.uid;const ov=document.getElementById('sfSigninOverlay');if(ov)ov.classList.add('hidden');const bar=document.getElementById('sfSignedInBar');const lbl=document.getElementById('sfSignedInEmail');if(bar)bar.classList.remove('hidden');if(lbl)lbl.textContent='Signed in as '+user.email;sfInitSession();window.sfFetchAndMerge();}
+  window.sfAuth.onAuthStateChanged(user=>{if(user){sfHideOverlayFB(user);}else{document.getElementById('sfSigninOverlay').classList.remove('hidden');}});
+}
+</script>
+</body>
+</html>
