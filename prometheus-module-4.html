@@ -7,7 +7,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#eef2f7; --bg2:#ffffff; --bg3:#f0f4f9;
+  --bg:#0f1117; --bg2:#ffffff; --bg3:#f0f4f9;
   --surface:#ffffff; --surface2:#f0f4f9; --panel:#ffffff; --panel2:#f0f4f9;
   --border:#d0dae8; --border2:#b8c5d6;
   --text:#1a2332; --text2:#4a5568; --text-dim:#4a5568; --text-dimmer:#8fa3bc; --muted:#8fa3bc;
@@ -24,7 +24,7 @@
   --font-sans:'Merriweather Sans','Inter',system-ui,-apple-system,sans-serif;
   --font-mono:'Source Code Pro','JetBrains Mono','Fira Code',Menlo,Consolas,monospace;
 }
-[data-theme="light"]{--bg:#eef2f7;--surface:#ffffff;--surface2:#f0f4f9;--border:#d0dae8;--text:#1a2332;--text2:#4a5568;}
+[data-theme="light"]{--surface:#ffffff;--surface2:#f0f4f9;--border:#d0dae8;--text:#1a2332;--text2:#4a5568;}
 html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
 a{color:var(--blue);text-decoration:none;}
 a:hover{color:var(--blue-dark);}
@@ -33,12 +33,12 @@ code,pre,.mono{font-family:var(--font-mono);}
 /* ===== AUTH OVERLAY ===== */
 #auth-overlay,.auth-overlay{position:fixed;inset:0;background:rgba(20,30,50,.82);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;}
 #auth-overlay.hidden,.auth-overlay.hidden{display:none;}
-.auth-card,.auth-box{background:#fff;border-radius:16px;padding:36px 40px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;}
+.auth-card,.auth-box{background:#fff;border-radius:20px;padding:48px 44px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center;}
 .auth-card img,.auth-logo{height:38px;margin-bottom:16px;}
 .auth-card h2{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:8px;}
 .auth-card p{color:var(--text-dim);font-size:.87rem;line-height:1.6;margin-bottom:22px;}
-.google-btn,.sf-google-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:var(--text);border:1.5px solid var(--border);border-radius:8px;padding:11px 20px;font-size:.9rem;font-weight:600;cursor:pointer;width:100%;transition:box-shadow .15s,border-color .15s;}
-.google-btn:hover,.sf-google-btn:hover{box-shadow:0 2px 8px rgba(0,0,0,.12);border-color:var(--blue-mid);}
+.google-btn,.sf-google-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#2563EB;color:#ffffff;border:none;border-radius:12px;padding:14px 20px;font-size:.95rem;font-weight:700;cursor:pointer;width:100%;transition:all .2s;box-shadow:0 2px 8px rgba(37,99,235,.35);}
+.google-btn:hover,.sf-google-btn:hover{background:#1D4ED8;box-shadow:0 4px 14px rgba(37,99,235,.45);transform:translateY(-1px);}
 .google-btn svg,.sf-google-btn img{width:18px;height:18px;flex-shrink:0;}
 
 /* ===== LOADING / SPINNER ===== */
@@ -47,17 +47,17 @@ code,pre,.mono{font-family:var(--font-mono);}
 @keyframes spin{to{transform:rotate(360deg);}}
 
 /* ===== TOP HEADER / NAV ===== */
-.header,.nav-brand{background:var(--bg2);border-bottom:1px solid var(--border);padding:13px 26px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.header-left{display:flex;align-items:center;gap:10px;font-size:.88rem;color:var(--text-dim);}
+.header,.nav-brand{background:#1565C0;border-bottom:none;padding:13px 26px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.35);}
+.header-left{display:flex;align-items:center;gap:10px;font-size:.88rem;color:rgba(255,255,255,0.8);}
 .header-left img,.nav-logo{height:28px;}
-.header-left a,.nav-title{color:var(--blue);font-weight:600;}
+.header-left a,.nav-title{color:#ffffff;font-weight:600;}
 .header-right,.nav-right{display:flex;align-items:center;gap:8px;}
-.user-chip,.nav-user{display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--text);background:var(--bg3);border:1px solid var(--border);border-radius:99px;padding:4px 12px 4px 4px;}
-.user-chip img{width:28px;height:28px;border-radius:50%;border:2px solid var(--blue);}
+.user-chip,.nav-user{display:flex;align-items:center;gap:7px;font-size:.82rem;color:#ffffff;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:99px;padding:4px 12px 4px 4px;}
+.user-chip img{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.5);}
 
 /* Buttons */
-.btn-sm{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:7px;cursor:pointer;font-size:.8rem;transition:all .15s;}
-.btn-sm:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
+.btn-sm{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#ffffff;padding:6px 12px;border-radius:7px;cursor:pointer;font-size:.8rem;transition:all .15s;}
+.btn-sm:hover{background:rgba(255,255,255,0.25);border-color:rgba(255,255,255,0.6);color:#ffffff;}
 
 /* ===== LAYOUT (sidebar + content) ===== */
 .layout{display:flex;min-height:calc(100vh - 54px);}
@@ -65,7 +65,7 @@ code,pre,.mono{font-family:var(--font-mono);}
 .sidebar-title{padding:0 18px 10px;font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dimmer);font-family:var(--font-mono);border-bottom:1px solid var(--border);margin-bottom:8px;}
 .sidebar-progress{padding:10px 18px;background:var(--bg3);margin:0 10px 10px;border-radius:8px;}
 .sidebar-progress-bar{background:var(--border);border-radius:99px;height:4px;margin-top:5px;overflow:hidden;}
-.sidebar-progress-fill{height:100%;border-radius:99px;background:var(--blue);transition:width .3s;}
+.sidebar-progress-fill{height:100%;border-radius:99px;background:#43A047;transition:width .3s;}
 .nav-item{padding:9px 18px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;display:flex;align-items:center;gap:9px;font-size:.85rem;color:var(--text);}
 .nav-item:hover{background:var(--bg3);}
 .nav-item.active{border-left-color:var(--blue);background:var(--blue-light);color:var(--blue);font-weight:600;}
@@ -157,8 +157,8 @@ code,pre,.mono{font-family:var(--font-mono);}
 .btn-quiz:hover{background:var(--blue-dark);}
 
 /* ===== COMPLETE BUTTON ===== */
-.complete-btn{display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:.9rem;font-weight:600;cursor:pointer;margin-top:16px;transition:background .15s;}
-.complete-btn:hover{background:var(--blue-dark);}
+.complete-btn{display:inline-flex;align-items:center;gap:8px;background:#43A047;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:.9rem;font-weight:600;cursor:pointer;margin-top:16px;transition:background .15s;}
+.complete-btn:hover{background:#2E7D32;}
 .complete-btn.done,.complete-btn.complete{background:var(--green);}
 .complete-btn:disabled{background:var(--text-dimmer);cursor:not-allowed;}
 .save-indicator{font-size:.75rem;color:var(--text-dimmer);font-family:var(--font-mono);margin-left:10px;}
@@ -220,6 +220,11 @@ code,pre,.mono{font-family:var(--font-mono);}
 .grafana{color:var(--grafana);}
 .purple{color:var(--purple);}
 .red{color:var(--coral);}
+.auth-divider{margin:16px 0 14px;color:#9ca3af;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;}
+.auth-input{width:100%;border:1px solid #d1d5db;border-radius:8px;padding:11px 13px;font-size:.9rem;margin-bottom:8px;outline:none;font-family:inherit;color:#111827;background:#fff;display:block;box-sizing:border-box;}
+.auth-input:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+.email-signin-btn{width:100%;background:#2563EB;color:#fff;border:none;border-radius:12px;padding:13px;font-size:.92rem;font-weight:700;cursor:pointer;margin-top:4px;transition:all .2s;}
+.email-signin-btn:hover{background:#1D4ED8;transform:translateY(-1px);}
 </style>
 </head>
 <body>
@@ -229,9 +234,14 @@ code,pre,.mono{font-family:var(--font-mono);}
     <h2>Sign In Required</h2>
     <p>Sign in with your SourceFuse Google account to access this module.</p>
     <button class="google-btn" id="signin-btn">
-      <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></svg>
       Sign in with Google
     </button>
+    <div class="auth-divider">OR</div>
+    <input id="ep-email" type="email" placeholder="you@sourcefuse.com" autocomplete="email" class="auth-input">
+    <input id="ep-password" type="password" placeholder="Password" autocomplete="current-password" class="auth-input">
+    <button onclick="sfEmailSignIn()" class="email-signin-btn">Sign in with Email</button>
+    <div id="ep-error" style="display:none;font-size:.82rem;color:#dc2626;background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:8px 12px;margin-top:4px;"></div>
   </div>
 </div>
 <div class="loading-overlay" id="loading-overlay"><div class="spinner"></div></div>
@@ -239,7 +249,7 @@ code,pre,.mono{font-family:var(--font-mono);}
 <header class="header">
   <div class="header-left">
     <img src="https://sflearningdevelopment.github.io/sf-internal-kubernetes-certification/sourcefuse-logo.png" alt="SourceFuse"/>
-    <a href="prometheus-dashboard.html">← Dashboard</a> / Module 4
+    <a href="prometheus-dashboard.html?v=2026-05-29-v1">← Dashboard</a> / Module 4
   </div>
   <div class="header-right">
     <div class="user-chip"><img id="user-avatar" src="" alt=""/><span id="user-name" style="font-size:0.82rem;"></span></div>
@@ -267,15 +277,15 @@ code,pre,.mono{font-family:var(--font-mono);}
     </div>
     <div id="sections-container"></div>
     <div class="nav-footer">
-      <a href="prometheus-module-3.html" class="nav-btn">← Module 3: PromQL</a>
-      <a href="prometheus-module-5.html" class="nav-btn primary">Module 5: Alerting →</a>
+      <a href="prometheus-module-3.html?v=2026-05-29-v1" class="nav-btn">← Module 3: PromQL</a>
+      <a href="prometheus-module-5.html?v=2026-05-29-v1" class="nav-btn primary">Module 5: Alerting →</a>
     </div>
   </div>
 </div>
 </div>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js';
@@ -627,6 +637,20 @@ window.toggleSection = (id) => {
 window.markComplete = markComplete;
 window.toggleTheme = () => { const h = document.documentElement; h.setAttribute('data-theme', h.getAttribute('data-theme')==='dark'?'light':'dark'); };
 window.copyCode = (btn) => { const text = btn.parentElement.innerText.replace('Copy','').trim(); navigator.clipboard.writeText(text).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500);}); };
+
+window.sfEmailSignIn = function() {
+  const email  = (document.getElementById('ep-email').value    || '').trim().toLowerCase();
+  const pwd    =  document.getElementById('ep-password').value  || '';
+  const errEl  =  document.getElementById('ep-error');
+  errEl.style.display = 'none';
+  if (!email || !pwd) { errEl.textContent = 'Please enter your email and password.'; errEl.style.display = 'block'; return; }
+  if (!email.endsWith('@sourcefuse.com')) { errEl.textContent = 'Only @sourcefuse.com accounts are allowed.'; errEl.style.display = 'block'; return; }
+  signInWithEmailAndPassword(auth, email, pwd).catch(function(e) {
+    errEl.textContent = (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') ? 'Incorrect password.'
+      : (e.code === 'auth/user-not-found') ? 'No account found for this email.' : e.message;
+    errEl.style.display = 'block';
+  });
+};
 </script>
 </body>
 </html>
