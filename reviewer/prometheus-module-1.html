@@ -4,6 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
+<meta http-equiv="Cross-Origin-Opener-Policy" content="unsafe-none">
+<meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none">
 <title>[Reviewer] Module 1: Prometheus Module 1</title>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -172,7 +174,7 @@ function sfSignOut(){window.sfReviewerEmail=null;window.sfReviewerUid=null;const
 document.addEventListener('DOMContentLoaded',function(){const gb=document.getElementById('sfGoogleSignInBtn');const eb=document.getElementById('sfEmailSignInBtn');const so=document.getElementById('sfSignoutLink');if(gb)gb.addEventListener('click',sfSignInWithGoogle);if(eb)eb.addEventListener('click',sfSignInWithEmail);if(so)so.addEventListener('click',sfSignOut);});
 </script>
 <script>
-const HUB_URL = 'https://sflearningdevelopment.github.io/sf-knowledge-hub/index.html';
+const HUB_URL = 'index.html';
 const SECTION_COUNT = 18676;
 const SECTION_QUESTIONS = {"1":[{"q":"Which CNCF project is Prometheus considered the de-facto standard for in cloud-native environments?","o":["Distributed tracing","Metrics monitoring and alerting","Container orchestration","Service mesh"],"c":1,"exp":"Prometheus is the de-facto standard for metrics monitoring and alerting in cloud-native environments, donated to the CNCF in 2016."},{"q":"Which model does Prometheus use to collect metrics from targets?","o":["Push","Pull","Stream","Event-driven"],"c":1,"exp":"Prometheus uses a pull-based model — it scrapes /metrics endpoints from targets at regular intervals."}],"2":[{"q":"What HTTP endpoint does Prometheus typically scrape from targets?","o":["/health","/metrics","/stats","/prom"],"c":1,"exp":"By convention, applications expose a /metrics HTTP endpoint that Prometheus scrapes."},{"q":"Which Prometheus component is the exception that handles short-lived batch jobs that finish before they can be scraped?","o":["Alertmanager","Pushgateway","node_exporter","Recording rules"],"c":1,"exp":"Pushgateway buffers metrics from short-lived jobs and lets Prometheus scrape them after the job has ended."}],"3":[{"q":"Which component receives alerts from Prometheus and routes them to receivers like Slack or PagerDuty?","o":["Pushgateway","Alertmanager","Recording rule engine","Grafana"],"c":1,"exp":"Alertmanager handles deduplication, grouping, silencing, and routing of alerts fired by Prometheus."},{"q":"What is the role of an exporter in the Prometheus ecosystem?","o":["It alerts on metric thresholds","It translates non-Prometheus metrics into the Prometheus format","It visualises dashboards","It stores long-term metrics"],"c":1,"exp":"Exporters are small agents that translate metrics from third-party systems (e.g. MySQL, node OS) into the Prometheus exposition format."}],"4":[{"q":"What is the main configuration file for a Prometheus server?","o":["prom.conf","prometheus.yml","config.json","scrape.toml"],"c":1,"exp":"prometheus.yml is the canonical YAML config file containing global, scrape_configs, alerting and rule_files settings."},{"q":"Which internal Prometheus subsystem evaluates recording and alerting rules at intervals?","o":["Scrape manager","Rule manager","Storage engine","Service discovery"],"c":1,"exp":"The rule manager evaluates rules at the configured evaluation_interval and writes results to the TSDB or fires alerts."}],"5":[{"q":"What does the Prometheus Operator's ServiceMonitor CRD do?","o":["Defines alert routing rules","Selects Kubernetes Services to be scraped by Prometheus","Configures Grafana dashboards","Manages TSDB block compaction"],"c":1,"exp":"ServiceMonitor selects Kubernetes Services (by labels) and tells Prometheus to scrape them — a declarative scrape config."},{"q":"Which Helm chart is the most popular way to install a full Prometheus stack on Kubernetes?","o":["prometheus-helm","kube-prometheus-stack","prom-stack","k8s-monitoring"],"c":1,"exp":"kube-prometheus-stack bundles Prometheus, Alertmanager, Grafana, kube-state-metrics, node_exporter and operator CRDs."}],"6":[{"q":"What is service discovery used for in Prometheus?","o":["Discovering which targets to scrape dynamically","Finding Grafana dashboards","Identifying long-running queries","Detecting alert storms"],"c":0,"exp":"Service discovery dynamically tells Prometheus what targets currently exist (via Kubernetes API, EC2, Consul, etc.)."},{"q":"Which built-in service discovery mechanism does Prometheus use to discover Kubernetes pods, services, and endpoints?","o":["consul_sd_config","kubernetes_sd_config","ec2_sd_config","static_configs"],"c":1,"exp":"kubernetes_sd_config queries the Kubernetes API to discover pods, services, endpoints, ingresses, and nodes for scraping."}],"7":[{"q":"What is the default local retention period for Prometheus TSDB data?","o":["1 day","15 days","30 days","90 days"],"c":1,"exp":"Prometheus retains TSDB data locally for 15 days by default, controllable via --storage.tsdb.retention.time."},{"q":"What does Prometheus use for long-term metric storage beyond local retention?","o":["S3 directly","Remote write to systems like Cortex, Thanos, or Mimir","Built-in long-term storage","Pushgateway"],"c":1,"exp":"Long-term storage uses remote_write to systems like Thanos, Cortex, Mimir, or Grafana Cloud."}]};
 
@@ -183,8 +185,10 @@ function submitModuleComplete() {
   btn.textContent = 'Saving…';
   const comment = document.getElementById('module-comment')?.value || '';
   const completedAt = new Date().toISOString();
+  const completedState = { completed: true, comment, completedAt, sectionCount: SECTION_COUNT };
+  revSave(completedState);
   if (typeof sfWrite === 'function') {
-    sfWrite({ completed: true, comment, completedAt, sectionCount: SECTION_COUNT });
+    sfWrite(completedState);
   }
   setTimeout(() => { window.location.href = HUB_URL; }, 1200);
 }
@@ -535,6 +539,9 @@ window.sqCheck=function(secId,qi,correctIdx){
   const fb=document.getElementById('sq-fb-'+secId+'-'+qi);
   const btn=document.getElementById('sq-btn-'+secId+'-'+qi);
   const item=document.getElementById('sq-item-'+secId+'-'+qi);
+  // Track attempt count — incremented on every submit, right or wrong
+  const atKey='sq_'+secId+'_'+qi+'_attempts';
+  const st0=revLoad();st0[atKey]=(st0[atKey]||0)+1;revSave(st0);
   if(isCorrect){
     selected.classList.add('correct');
     if(fb){fb.textContent='✓ Correct!';fb.className='sq-feedback correct';}
