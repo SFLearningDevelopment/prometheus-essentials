@@ -4,6 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
+<meta http-equiv="Cross-Origin-Opener-Policy" content="unsafe-none">
+<meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none">
 <title>[Reviewer] Module 3: Prometheus Module 3</title>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -172,7 +174,7 @@ function sfSignOut(){window.sfReviewerEmail=null;window.sfReviewerUid=null;const
 document.addEventListener('DOMContentLoaded',function(){const gb=document.getElementById('sfGoogleSignInBtn');const eb=document.getElementById('sfEmailSignInBtn');const so=document.getElementById('sfSignoutLink');if(gb)gb.addEventListener('click',sfSignInWithGoogle);if(eb)eb.addEventListener('click',sfSignInWithEmail);if(so)so.addEventListener('click',sfSignOut);});
 </script>
 <script>
-const HUB_URL = 'https://sflearningdevelopment.github.io/sf-knowledge-hub/index.html';
+const HUB_URL = 'index.html';
 const SECTION_COUNT = 21755;
 const SECTION_QUESTIONS = {"1":[{"q":"Which PromQL data type represents a set of time series each with a single value at a single timestamp?","o":["Range vector","Instant vector","Scalar","String"],"c":1,"exp":"Instant vectors return one value per series at the evaluation time. Range vectors include a window of values."},{"q":"Which expression returns a range vector?","o":["http_requests_total","http_requests_total[5m]","rate(http_requests_total)","5"],"c":1,"exp":"Adding [duration] turns an instant vector selector into a range vector covering that lookback window."}],"2":[{"q":"Which selector matches all http_requests_total series with status starting with 5?","o":["http_requests_total{status=\"5*\"}","http_requests_total{status=~\"5..\"}","http_requests_total{status==5xx}","http_requests_total{status:5*}"],"c":1,"exp":"=~ is the regex match operator. \"5..\" matches any 3-character status starting with 5."},{"q":"What does the !~ operator do in a label matcher?","o":["Negation by equality","Negative regex match — selects series whose label does NOT match the regex","Logical NOT","Inverts the metric"],"c":1,"exp":"!~ is the negative regex match — selects series where the label value does NOT match the given regex."}],"3":[{"q":"What does rate(http_requests_total[5m]) return?","o":["The total over 5 minutes","The per-second average rate of increase over the 5-minute window","The maximum value in the last 5 minutes","The current value"],"c":1,"exp":"rate() returns the per-second average rate of increase calculated over the specified range."},{"q":"When should you prefer irate() over rate()?","o":["For dashboards where you want to see fast-changing, recent activity (graphs, not alerts)","For alerting on sustained trends","When the counter is decreasing","Always — irate is faster"],"c":0,"exp":"irate() uses only the two most recent points, making it more reactive but spiky. Use rate() for alerting and irate() for live dashboards of volatile metrics."}],"4":[{"q":"Which aggregation operator computes the average across series?","o":["sum","avg","count","max"],"c":1,"exp":"avg returns the arithmetic mean across the matched series."},{"q":"What does 'sum by (instance) (rate(http_requests_total[5m]))' do?","o":["Sums all rates and discards the instance label","Sums rates within each instance group, returning one series per instance","Removes the rate function","Sums only one instance"],"c":1,"exp":"by (instance) groups results by the instance label, returning one aggregated series per unique instance."}],"5":[{"q":"What does 'http_requests_total > 100' return?","o":["A boolean true/false","Series whose values are greater than 100, with their original values","Always 1 or 0","An error"],"c":1,"exp":"Comparison operators filter the vector. Series passing the comparison are returned with their original values; failing series are dropped."},{"q":"What does the 'bool' modifier do in 'rate(x[5m]) > bool 0.5'?","o":["Converts the result to 1/0 instead of filtering","Inverts the comparison","Casts to integer","Forces evaluation in Boolean mode"],"c":0,"exp":"The bool modifier returns 1 (true) or 0 (false) for every series instead of filtering. Useful for SLO calculations."}],"6":[{"q":"What does avg_over_time(cpu_usage[5m]) return?","o":["A range vector","An instant vector with the time-average per series over the last 5 minutes","The current value","A scalar"],"c":1,"exp":"*_over_time aggregations collapse a range vector into an instant vector by aggregating values over the window."},{"q":"What does predict_linear(filesystem_free[1h], 4*3600) compute?","o":["The average free space over 4 hours","A linear extrapolation of free space 4 hours into the future, based on the last hour","The minimum over 4 hours","Always zero"],"c":1,"exp":"predict_linear fits a linear regression over the range and extrapolates by N seconds — useful for 'will my disk fill up?' alerts."}],"7":[{"q":"What is the main purpose of a recording rule?","o":["To pre-compute and store frequently-needed expressions, speeding up dashboards and alerts","To replace exporters","To define alert routes","To configure scrape intervals"],"c":0,"exp":"Recording rules pre-compute expensive expressions on a schedule and store the result as a new metric, making dashboards and alerts faster."},{"q":"What is the conventional naming format for a recording rule?","o":["snake_case_only","level:metric:operations (e.g. job:http_requests:rate5m)","MetricName_Recording","The same as the original metric"],"c":1,"exp":"The convention is level:metric:operations to make the rule's aggregation level visible (e.g. job:http_requests:rate5m)."}],"8":[{"q":"Which PromQL expression typically computes a 5-minute error rate?","o":["sum(rate(http_requests_total{status=~\"5..\"}[5m]))","rate(errors_total)","avg_over_time(errors[5m])","errors_total / 5"],"c":0,"exp":"sum(rate(...{status=~\"5..\"}[5m])) sums the per-second rate of 5xx errors over the last 5 minutes — a standard 'error rate' query."},{"q":"What does this compute? histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))","o":["95th percentile request count","p95 request latency over the last 5 minutes","Average latency","Number of slow requests"],"c":1,"exp":"Standard p95 latency pattern: rate the buckets, sum by le, then ask histogram_quantile for the 0.95 cutoff."}]};
 
@@ -183,8 +185,10 @@ function submitModuleComplete() {
   btn.textContent = 'Saving…';
   const comment = document.getElementById('module-comment')?.value || '';
   const completedAt = new Date().toISOString();
+  const completedState = { completed: true, comment, completedAt, sectionCount: SECTION_COUNT };
+  revSave(completedState);
   if (typeof sfWrite === 'function') {
-    sfWrite({ completed: true, comment, completedAt, sectionCount: SECTION_COUNT });
+    sfWrite(completedState);
   }
   setTimeout(() => { window.location.href = HUB_URL; }, 1200);
 }
@@ -601,6 +605,9 @@ window.sqCheck=function(secId,qi,correctIdx){
   const fb=document.getElementById('sq-fb-'+secId+'-'+qi);
   const btn=document.getElementById('sq-btn-'+secId+'-'+qi);
   const item=document.getElementById('sq-item-'+secId+'-'+qi);
+  // Track attempt count — incremented on every submit, right or wrong
+  const atKey='sq_'+secId+'_'+qi+'_attempts';
+  const st0=revLoad();st0[atKey]=(st0[atKey]||0)+1;revSave(st0);
   if(isCorrect){
     selected.classList.add('correct');
     if(fb){fb.textContent='✓ Correct!';fb.className='sq-feedback correct';}
