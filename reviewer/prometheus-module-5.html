@@ -4,6 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
+<meta http-equiv="Cross-Origin-Opener-Policy" content="unsafe-none">
+<meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none">
 <title>[Reviewer] Module 5: Prometheus Module 5</title>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -172,7 +174,7 @@ function sfSignOut(){window.sfReviewerEmail=null;window.sfReviewerUid=null;const
 document.addEventListener('DOMContentLoaded',function(){const gb=document.getElementById('sfGoogleSignInBtn');const eb=document.getElementById('sfEmailSignInBtn');const so=document.getElementById('sfSignoutLink');if(gb)gb.addEventListener('click',sfSignInWithGoogle);if(eb)eb.addEventListener('click',sfSignInWithEmail);if(so)so.addEventListener('click',sfSignOut);});
 </script>
 <script>
-const HUB_URL = 'https://sflearningdevelopment.github.io/sf-knowledge-hub/index.html';
+const HUB_URL = 'index.html';
 const SECTION_COUNT = 20120;
 const SECTION_QUESTIONS = {"1":[{"q":"Which two components participate in Prometheus alerting?","o":["Prometheus and Grafana","Prometheus (evaluates rules, fires alerts) and Alertmanager (routes and delivers them)","Alertmanager and Pushgateway","node_exporter and Prometheus"],"c":1,"exp":"Prometheus evaluates alerting rules and fires alerts; Alertmanager handles deduplication, grouping, routing, and notifications."},{"q":"What is the lifecycle of an alert from rule firing to user notification?","o":["Rule evaluates → Alert fires → Sent to Alertmanager → Grouped/deduplicated → Routed to receiver → Notification delivered","Rule fires → Direct Slack call","Alert evaluated only on demand","Prometheus delivers notifications itself"],"c":0,"exp":"Prometheus fires to Alertmanager, which groups, deduplicates, silences as configured, and finally routes to the right receiver."}],"2":[{"q":"What does the 'for: 5m' clause in an alert rule mean?","o":["Evaluate every 5 minutes","The condition must be true for 5 continuous minutes before the alert fires (state goes from pending to firing)","Alert fires for 5 minutes only","Wait 5 minutes after the alert"],"c":1,"exp":"'for' is the pending duration — the alert must remain firing for that long before transitioning to the firing state, reducing flap."},{"q":"What is the purpose of labels and annotations in an alert rule?","o":["They are interchangeable","Labels are used by Alertmanager for routing/grouping; annotations carry human-readable text like description and runbook URL","Annotations route the alert","Labels are only for display"],"c":1,"exp":"Labels (severity, team, etc.) drive Alertmanager's routing/grouping. Annotations are human-readable extras (summary, description, runbook_url)."}],"3":[{"q":"What does Alertmanager's deduplication step do?","o":["Removes duplicate Prometheus instances","Suppresses identical alerts received from multiple HA Prometheus servers","Deletes the database","Removes expired silences"],"c":1,"exp":"When you run HA Prometheus, both servers fire the same alert. Alertmanager dedupes them so you get one notification."},{"q":"What is the purpose of grouping in Alertmanager?","o":["To slow down alerts","To bundle related alerts into a single notification (e.g. 'all 5 nodes in rack A are down')","To delete alerts","To assign owners"],"c":1,"exp":"Grouping consolidates many related alerts (same group_by labels) into a single notification, reducing noise."}],"4":[{"q":"Which file format does Alertmanager use for configuration?","o":["JSON","YAML (alertmanager.yml)","TOML","INI"],"c":1,"exp":"Alertmanager uses YAML, conventionally named alertmanager.yml, with route, receivers, and inhibition_rules sections."},{"q":"In Alertmanager, what does a 'receiver' represent?","o":["A team","A notification target like Slack, PagerDuty, email, or webhook","An alert","A silence"],"c":1,"exp":"A receiver is the destination for notifications — Slack channel, PagerDuty service, email list, generic webhook, etc."}],"5":[{"q":"What does a silence do in Alertmanager?","o":["Deletes the alert rule permanently","Temporarily suppresses notifications for alerts matching specified labels","Disables Prometheus","Clears the history"],"c":1,"exp":"Silences mute notifications for matching alerts during a time window — useful for planned maintenance."},{"q":"What does an inhibition rule do?","o":["Prevents lower-severity alerts from notifying when a higher-severity alert is firing for the same scope","Silences all alerts permanently","Inhibits scraping","Throttles notifications"],"c":0,"exp":"Inhibition suppresses one alert when another is firing — e.g. don't page on individual pod failures when the entire cluster is down."}],"6":[{"q":"What is the PrometheusRule CRD used for?","o":["Defining alerting and recording rules declaratively in Kubernetes via the Prometheus Operator","Configuring Grafana dashboards","Routing alerts","Defining service discovery"],"c":0,"exp":"PrometheusRule is the operator's CRD for alerting + recording rules — it gets reconciled into Prometheus's rule files automatically."},{"q":"Which label on a PrometheusRule resource determines which Prometheus instance picks it up?","o":["The labels matched by the Prometheus's ruleSelector","The namespace label","The name","The annotation 'app'"],"c":0,"exp":"Each Prometheus resource specifies a ruleSelector that matches PrometheusRule label sets — only matching rule files are loaded."}],"7":[{"q":"Which is a best practice for alert rule design?","o":["Alert on every metric over a threshold","Alert on symptoms users feel (high error rate, latency) rather than on every internal cause","Always use very short 'for:' durations","Send all alerts to one channel"],"c":1,"exp":"The 'symptom-based' approach (Google SRE) means alerting on user-impacting issues, not every internal anomaly. Reduces fatigue."},{"q":"Why is including a runbook_url annotation valuable on alerts?","o":["Required by Alertmanager","Lets the on-call engineer quickly find documented investigation steps for that specific alert","Prevents the alert from firing","Makes the alert ID shorter"],"c":1,"exp":"runbook_url makes alerts actionable — the on-call jumps to documented steps instead of starting from scratch at 3am."}]};
 
@@ -183,8 +185,10 @@ function submitModuleComplete() {
   btn.textContent = 'Saving…';
   const comment = document.getElementById('module-comment')?.value || '';
   const completedAt = new Date().toISOString();
+  const completedState = { completed: true, comment, completedAt, sectionCount: SECTION_COUNT };
+  revSave(completedState);
   if (typeof sfWrite === 'function') {
-    sfWrite({ completed: true, comment, completedAt, sectionCount: SECTION_COUNT });
+    sfWrite(completedState);
   }
   setTimeout(() => { window.location.href = HUB_URL; }, 1200);
 }
@@ -598,6 +602,9 @@ window.sqCheck=function(secId,qi,correctIdx){
   const fb=document.getElementById('sq-fb-'+secId+'-'+qi);
   const btn=document.getElementById('sq-btn-'+secId+'-'+qi);
   const item=document.getElementById('sq-item-'+secId+'-'+qi);
+  // Track attempt count — incremented on every submit, right or wrong
+  const atKey='sq_'+secId+'_'+qi+'_attempts';
+  const st0=revLoad();st0[atKey]=(st0[atKey]||0)+1;revSave(st0);
   if(isCorrect){
     selected.classList.add('correct');
     if(fb){fb.textContent='✓ Correct!';fb.className='sq-feedback correct';}
