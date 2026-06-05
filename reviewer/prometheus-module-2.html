@@ -4,6 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
+<meta http-equiv="Cross-Origin-Opener-Policy" content="unsafe-none">
+<meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none">
 <title>[Reviewer] Module 2: Prometheus Module 2</title>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -172,7 +174,7 @@ function sfSignOut(){window.sfReviewerEmail=null;window.sfReviewerUid=null;const
 document.addEventListener('DOMContentLoaded',function(){const gb=document.getElementById('sfGoogleSignInBtn');const eb=document.getElementById('sfEmailSignInBtn');const so=document.getElementById('sfSignoutLink');if(gb)gb.addEventListener('click',sfSignInWithGoogle);if(eb)eb.addEventListener('click',sfSignInWithEmail);if(so)so.addEventListener('click',sfSignOut);});
 </script>
 <script>
-const HUB_URL = 'https://sflearningdevelopment.github.io/sf-knowledge-hub/index.html';
+const HUB_URL = 'index.html';
 const SECTION_COUNT = 15888;
 const SECTION_QUESTIONS = {"1":[{"q":"How is a single Prometheus time series uniquely identified?","o":["By metric name only","By metric name + set of label key-value pairs","By UUID","By timestamp"],"c":1,"exp":"A time series is uniquely identified by its metric name and the set of label key-value pairs."},{"q":"What two pieces of information accompany every value in a Prometheus time series?","o":["Hostname and port","Timestamp (ms) and floating-point value","Source IP and protocol","Owner and team"],"c":1,"exp":"Each sample is a (timestamp_ms, float64_value) pair recorded against a unique series identity."}],"2":[{"q":"What is the defining property of a Counter metric?","o":["It can go up and down","It only goes up (or resets to zero on restart)","It tracks distribution","It is updated only on shutdown"],"c":1,"exp":"A Counter is a monotonically increasing value that only goes up; it resets to zero when the process restarts."},{"q":"Why should you typically wrap a counter in rate() before plotting in Grafana?","o":["Counters cannot be plotted directly","rate() converts the cumulative counter into per-second change, which is what you usually care about","rate() makes the chart prettier","Grafana requires rate()"],"c":1,"exp":"Raw counters are cumulative (always rising); rate() shows per-second activity, which is what humans usually want to see."}],"3":[{"q":"Which metric type can both increase and decrease?","o":["Counter","Gauge","Histogram","Summary"],"c":1,"exp":"A Gauge represents a value that can go up or down — like temperature, queue length, or memory usage."},{"q":"Which of the following is best modelled as a gauge?","o":["Total HTTP requests served","Current memory in use","Number of failed logins ever","Total bytes read since boot"],"c":1,"exp":"Memory in use can go up and down, making it a perfect gauge. The others are monotonically rising counters."}],"4":[{"q":"What does a Prometheus histogram metric track?","o":["A single instantaneous value","Distribution of observations into pre-configured buckets","Per-second rate only","A categorical label"],"c":1,"exp":"Histograms count observations into configurable cumulative buckets — useful for tracking request duration distributions."},{"q":"Which PromQL function is used to estimate quantiles from a histogram?","o":["quantile()","histogram_quantile()","percentile()","estimate_quantile()"],"c":1,"exp":"histogram_quantile() interpolates a quantile (e.g. p95) from the cumulative histogram buckets."}],"5":[{"q":"What is the key difference between histogram and summary metrics?","o":["Summaries calculate quantiles client-side; histograms calculate them server-side via PromQL","They are identical","Summaries are faster on the server","Histograms cannot be aggregated"],"c":0,"exp":"Summaries pre-compute quantiles inside the application; histograms expose buckets and quantiles are calculated in PromQL."},{"q":"Which metric type is generally NOT aggregatable across multiple instances?","o":["Counter","Gauge","Summary quantiles","Histogram buckets"],"c":2,"exp":"Pre-computed summary quantiles cannot be meaningfully averaged across instances. Histogram buckets can be summed and re-quantiled."}],"6":[{"q":"Why is high label cardinality dangerous in Prometheus?","o":["Each unique label combination creates a new time series, increasing memory and storage cost","Labels make queries slower because Prometheus stores them as JSON","Labels are encrypted","Labels are case-sensitive"],"c":0,"exp":"Every unique label-value combination creates a new series. Unbounded labels (user IDs, request IDs) explode cardinality and OOM Prometheus."},{"q":"Which label value would be a typical cardinality landmine?","o":["status=\"200\"","method=\"GET\"","user_id=\"42c81…\"","region=\"us-east-1\""],"c":2,"exp":"user_id has potentially unbounded values — every user creates a new series. Use bucketing/aggregation instead."}],"7":[{"q":"Which line format is correct in the Prometheus text exposition format?","o":["http_requests_total{status=\"200\"} 1027","http_requests_total: 1027 [status=200]","{http_requests_total, status=200} = 1027","http_requests_total = 1027 (status=200)"],"c":0,"exp":"The exposition format is: metric_name{label=\"value\",...} value [timestamp]."},{"q":"What do the # HELP and # TYPE lines do in the exposition format?","o":["They are required syntax errors","They provide a description and type hint (counter, gauge, histogram, summary) for the metric","They define ACL rules","They are comments that Prometheus ignores entirely"],"c":1,"exp":"# HELP describes the metric; # TYPE declares the metric type so the server knows how to handle it."}]};
 
@@ -183,8 +185,10 @@ function submitModuleComplete() {
   btn.textContent = 'Saving…';
   const comment = document.getElementById('module-comment')?.value || '';
   const completedAt = new Date().toISOString();
+  const completedState = { completed: true, comment, completedAt, sectionCount: SECTION_COUNT };
+  revSave(completedState);
   if (typeof sfWrite === 'function') {
-    sfWrite({ completed: true, comment, completedAt, sectionCount: SECTION_COUNT });
+    sfWrite(completedState);
   }
   setTimeout(() => { window.location.href = HUB_URL; }, 1200);
 }
@@ -482,6 +486,9 @@ window.sqCheck=function(secId,qi,correctIdx){
   const fb=document.getElementById('sq-fb-'+secId+'-'+qi);
   const btn=document.getElementById('sq-btn-'+secId+'-'+qi);
   const item=document.getElementById('sq-item-'+secId+'-'+qi);
+  // Track attempt count — incremented on every submit, right or wrong
+  const atKey='sq_'+secId+'_'+qi+'_attempts';
+  const st0=revLoad();st0[atKey]=(st0[atKey]||0)+1;revSave(st0);
   if(isCorrect){
     selected.classList.add('correct');
     if(fb){fb.textContent='✓ Correct!';fb.className='sq-feedback correct';}
