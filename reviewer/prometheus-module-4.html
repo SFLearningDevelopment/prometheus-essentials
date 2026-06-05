@@ -4,6 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
+<meta http-equiv="Cross-Origin-Opener-Policy" content="unsafe-none">
+<meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none">
 <title>[Reviewer] Module 4: Prometheus Module 4</title>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -172,7 +174,7 @@ function sfSignOut(){window.sfReviewerEmail=null;window.sfReviewerUid=null;const
 document.addEventListener('DOMContentLoaded',function(){const gb=document.getElementById('sfGoogleSignInBtn');const eb=document.getElementById('sfEmailSignInBtn');const so=document.getElementById('sfSignoutLink');if(gb)gb.addEventListener('click',sfSignInWithGoogle);if(eb)eb.addEventListener('click',sfSignInWithEmail);if(so)so.addEventListener('click',sfSignOut);});
 </script>
 <script>
-const HUB_URL = 'https://sflearningdevelopment.github.io/sf-knowledge-hub/index.html';
+const HUB_URL = 'index.html';
 const SECTION_COUNT = 17487;
 const SECTION_QUESTIONS = {"1":[{"q":"What is an exporter in the Prometheus ecosystem?","o":["A backup tool","An adapter that exposes /metrics for systems that do not natively support Prometheus","A long-term storage backend","A query language"],"c":1,"exp":"Exporters are bridges that translate non-Prometheus metrics (MySQL stats, OS counters, etc.) into the Prometheus exposition format on /metrics."},{"q":"Why are exporters often deployed as sidecars or as separate processes from the system being monitored?","o":["For performance","To isolate failure and to avoid modifying the third-party software being monitored","Required by Kubernetes","Convention only"],"c":1,"exp":"Exporters run separately so you don't have to modify (or even have source access to) the system you're monitoring."}],"2":[{"q":"What does node_exporter expose?","o":["Kubernetes object state","Hardware and OS-level metrics (CPU, memory, disk, network)","Application-level metrics","Container CPU"],"c":1,"exp":"node_exporter is the canonical exporter for *NIX system metrics: CPU, memory, disk, network, load, etc."},{"q":"Which metric exposed by node_exporter would you use to compute available memory percentage?","o":["node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes","node_load1","node_cpu_seconds_total","node_filesystem_free_bytes"],"c":0,"exp":"MemAvailable_bytes ÷ MemTotal_bytes gives the fraction of memory available — multiply by 100 for a percent."}],"3":[{"q":"What does blackbox_exporter probe?","o":["Internal application memory","External endpoints over HTTP, HTTPS, DNS, TCP, ICMP — measuring availability and latency","Kubernetes objects","Disk performance"],"c":1,"exp":"blackbox_exporter probes endpoints externally to measure reachability, response time, certificate validity, etc."},{"q":"Which metric does blackbox_exporter expose to indicate whether a probe succeeded?","o":["probe_status","probe_success (1=ok, 0=fail)","probe_health","blackbox_up"],"c":1,"exp":"probe_success is 1 on a successful probe and 0 on failure — alert on this for SLA-style availability checks."}],"4":[{"q":"What does kube-state-metrics expose?","o":["Container CPU usage","Information about Kubernetes objects (deployments, pods, jobs, etc.) and their state","Node disk I/O","Application traces"],"c":1,"exp":"kube-state-metrics translates Kubernetes API state (replicas desired, pods ready, etc.) into Prometheus metrics."},{"q":"What does cAdvisor (built into the kubelet) expose?","o":["Cluster-level state","Per-container resource usage (CPU, memory, network, fs)","Audit logs","Pod scheduling decisions"],"c":1,"exp":"cAdvisor reports container-level resource consumption — this is how you see actual CPU/memory usage of pods and containers."}],"5":[{"q":"Which is NOT an official Prometheus client library language?","o":["Go","Java","Python","COBOL"],"c":3,"exp":"Official client libraries exist for Go, Java/JVM, Python, Ruby, .NET, Rust, and others — but not COBOL."},{"q":"When instrumenting a counter for HTTP requests, which is the conventional metric name?","o":["http.requests","HttpRequestsTotal","http_requests_total","requests"],"c":2,"exp":"snake_case with _total suffix for counters: http_requests_total."}],"6":[{"q":"When is Pushgateway the right tool?","o":["For long-running services","For short-lived batch jobs that finish before Prometheus can scrape them","As a replacement for Alertmanager","For high-cardinality metrics"],"c":1,"exp":"Pushgateway buffers metrics from short-lived jobs (cron, batch) so Prometheus can scrape the gateway after the job has ended."},{"q":"Why should Pushgateway NOT be used as a generic push endpoint for long-running services?","o":["It is too slow","Pushed metrics never expire and can accumulate stale data; Pushgateway becomes a single point of failure and obscures target health","Prometheus refuses to scrape it","It is closed source"],"c":1,"exp":"Pushed metrics persist until explicitly deleted. For long-lived services, scraping is better — Prometheus naturally handles target up/down."}]};
 
@@ -183,8 +185,10 @@ function submitModuleComplete() {
   btn.textContent = 'Saving…';
   const comment = document.getElementById('module-comment')?.value || '';
   const completedAt = new Date().toISOString();
+  const completedState = { completed: true, comment, completedAt, sectionCount: SECTION_COUNT };
+  revSave(completedState);
   if (typeof sfWrite === 'function') {
-    sfWrite({ completed: true, comment, completedAt, sectionCount: SECTION_COUNT });
+    sfWrite(completedState);
   }
   setTimeout(() => { window.location.href = HUB_URL; }, 1200);
 }
@@ -532,6 +536,9 @@ window.sqCheck=function(secId,qi,correctIdx){
   const fb=document.getElementById('sq-fb-'+secId+'-'+qi);
   const btn=document.getElementById('sq-btn-'+secId+'-'+qi);
   const item=document.getElementById('sq-item-'+secId+'-'+qi);
+  // Track attempt count — incremented on every submit, right or wrong
+  const atKey='sq_'+secId+'_'+qi+'_attempts';
+  const st0=revLoad();st0[atKey]=(st0[atKey]||0)+1;revSave(st0);
   if(isCorrect){
     selected.classList.add('correct');
     if(fb){fb.textContent='✓ Correct!';fb.className='sq-feedback correct';}
