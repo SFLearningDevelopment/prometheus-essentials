@@ -280,6 +280,11 @@ code,pre,.mono{font-family:var(--font-mono);}
       </div>
     </div>
     <div id="sections-container"></div>
+    <div id="module-complete-bar" style="margin:24px 0;padding:18px;border:1px solid var(--border,#e2e8f0);border-radius:12px;text-align:center;">
+      <button id="mark-module-btn" class="nav-btn primary" style="opacity:.5;pointer-events:none;" onclick="window.markModuleComplete()">Mark module as complete</button>
+      <button id="redo-module-btn" class="nav-btn" style="display:none;" onclick="window.redoModule()">Redo module</button>
+      <div id="module-complete-hint" style="font-size:12px;opacity:.7;margin-top:8px;">Complete all sections to enable.</div>
+    </div>
     <div class="nav-footer">
       <a href="prometheus-module-2.html?v=2026-05-29-v1" class="nav-btn">← Module 2: Metrics & Data Model</a>
       <a href="prometheus-module-4.html?v=2026-05-29-v1" class="nav-btn primary">Module 4: Exporters →</a>
@@ -652,11 +657,13 @@ histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by 
 ];
 
 let _uid = null, _completed = [];
+let _email = null; let _name = null;
 document.getElementById('signin-btn').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch(e) {} };
 document.getElementById('signout-btn').onclick = () => signOut(auth);
 onAuthStateChanged(auth, async user => {
   if (user) {
     _uid = user.uid;
+    _email = user.email || null; _name = user.displayName || user.email || null;
     document.getElementById('auth-overlay').style.display = 'none';
     document.getElementById('loading-overlay').style.display = 'flex';
     document.getElementById('user-avatar').src = user.photoURL || '';
@@ -695,7 +702,7 @@ function renderAll() {
   SECTIONS.forEach(s => {
     const done = _completed.includes(s.id);
     const div = document.createElement('div'); div.className = 'section-block';
-    div.innerHTML = `<div class="section-header" onclick="toggleSection(${s.id})"><span class="section-num">${MODULE_NUM}.${s.id}</span><span class="section-title">${s.title}</span><span class="nav-badge ${BADGE_CLASSES[s.badge]}">${BADGES[s.badge]}</span>${done?'<span style="color:var(--green);font-size:0.83rem;">✅</span>':''}<span class="section-toggle" id="toggle-${s.id}">▼</span></div><div class="section-body" id="body-${s.id}">${s.content}<button class="complete-btn ${done?'done':''}" id="complete-btn-${s.id}" onclick="markComplete(${s.id})" ${done?'disabled':''}>${done?'✅ Completed':'✅ Mark section '+MODULE_NUM+'.'+s.id+' as completed'}</button><span class="save-indicator" id="save-ind-${s.id}">✓ Saved to cloud</span></div>`;
+    div.innerHTML = `<div class="section-header" onclick="toggleSection(${s.id})"><span class="section-num">${MODULE_NUM}.${s.id}</span><span class="section-title">${s.title}</span><span class="nav-badge ${BADGE_CLASSES[s.badge]}">${BADGES[s.badge]}</span>${done?'<span style="color:var(--green);font-size:0.83rem;">✅</span>':''}<span class="section-toggle" id="toggle-${s.id}">▼</span></div><div class="section-body" id="body-${s.id}">${s.content}<button class="complete-btn ${done?'done':''}" id="complete-btn-${s.id}" onclick="markComplete(${s.id})" ${done?'disabled':''}>${done?'✅ Completed':'✅ Mark section '+MODULE_NUM+'.'+s.id+' as completed'}</button><span class="save-indicator" id="save-ind-${s.id}">✓ Saved section progress</span></div>`;
     secContainer.appendChild(div);
   });
   renderProgress();
@@ -724,6 +731,96 @@ window.sfEmailSignIn = function() {
     errEl.style.display = 'block';
   });
 };
+
+// ---------- courseProgress: module-level completion (adapted) ----------
+const CP_COURSE_ID  = 'Hea541StRT71fQWSIOce';
+const CP_MODULE_KEY = 'prometheus-module-3';  // filename minus .html (matches courses catalog + admin reader)
+
+function cpAllSectionsDone(){
+  try { return SECTIONS.every(s => _completed.includes(s.id)); } catch(e){ return false; }
+}
+function cpNow(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return {
+    date: d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),
+    time: pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())
+  };
+}
+async function cpUpdateModuleBar(){
+  const bar = document.getElementById('module-complete-bar');
+  if(!bar) return;
+  const markBtn = document.getElementById('mark-module-btn');
+  const redoBtn = document.getElementById('redo-module-btn');
+  const hint    = document.getElementById('module-complete-hint');
+  const allDone = cpAllSectionsDone();
+
+  let alreadyComplete = false;
+  try {
+    if(_uid){
+      const cpRef = doc(db,'courseProgress',_uid);
+      const cpSnap = await getDoc(cpRef);
+      const data = cpSnap.exists() ? (cpSnap.data()||{}) : {};
+      const courseObj = (data.courses && data.courses[CP_COURSE_ID]) || {};
+      const mods = courseObj.modules || {};
+      alreadyComplete = !!(mods[CP_MODULE_KEY] && mods[CP_MODULE_KEY].completedOn);
+    }
+  } catch(e) {}
+
+  if(alreadyComplete){
+    markBtn.textContent = '\u2705 Module completed';
+    markBtn.style.opacity = '1'; markBtn.style.pointerEvents = 'none';
+    redoBtn.style.display = 'inline-block'; hint.textContent = '';
+  } else if(allDone){
+    markBtn.textContent = 'Mark module as complete';
+    markBtn.style.opacity = '1'; markBtn.style.pointerEvents = 'auto';
+    redoBtn.style.display = 'none'; hint.textContent = '';
+  } else {
+    markBtn.textContent = 'Mark module as complete';
+    markBtn.style.opacity = '.5'; markBtn.style.pointerEvents = 'none';
+    redoBtn.style.display = 'none'; hint.textContent = 'Complete all sections to enable.';
+  }
+}
+
+window.markModuleComplete = async function(){
+  if(!_uid) return;
+  const t = cpNow();
+  const ref = doc(db,'courseProgress',_uid);
+  const snap = await getDoc(ref);
+  const data = snap.exists() ? (snap.data()||{}) : {};
+  const courseObj = (data.courses && data.courses[CP_COURSE_ID]) || {};
+  const mods = courseObj.modules || {};
+  const update = { email: _email, name: _name, courses: {} };
+  const courseUpdate = { modules: {} };
+  if(!courseObj.courseStartedOn){ courseUpdate.courseStartedOn = t.date; courseUpdate.courseStartedAt = t.time; }
+  if(!mods[CP_MODULE_KEY] || !mods[CP_MODULE_KEY].completedOn){
+    courseUpdate.modules[CP_MODULE_KEY] = { completedOn: t.date, completedAt: t.time };
+  }
+  update.courses[CP_COURSE_ID] = courseUpdate;
+  try { await setDoc(ref, update, { merge: true }); }
+  catch(e){ console.warn('[courseProgress] module complete write failed:', e.message); }
+  const markBtn = document.getElementById('mark-module-btn');
+  const redoBtn = document.getElementById('redo-module-btn');
+  const hint    = document.getElementById('module-complete-hint');
+  if(markBtn){ markBtn.textContent = '\u2705 Module completed'; markBtn.style.pointerEvents = 'none'; }
+  if(redoBtn){ redoBtn.style.display = 'inline-block'; }
+  if(hint){ hint.textContent = ''; }
+};
+
+window.redoModule = function(){
+  const markBtn = document.getElementById('mark-module-btn');
+  const redoBtn = document.getElementById('redo-module-btn');
+  const hint    = document.getElementById('module-complete-hint');
+  if(markBtn){ markBtn.textContent = 'Mark module as complete'; markBtn.style.opacity = '1'; markBtn.style.pointerEvents = 'auto'; }
+  if(redoBtn){ redoBtn.style.display = 'none'; }
+  if(hint){ hint.textContent = ''; }
+};
+
+// Refresh the module bar on load and after each section mark (renderProgress runs in both).
+if (typeof renderProgress === 'function') {
+  const _origRenderProgress = renderProgress;
+  renderProgress = function(){ _origRenderProgress(); cpUpdateModuleBar(); };
+}
 </script>
 </body>
 </html>
